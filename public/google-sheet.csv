@@ -1,0 +1,125 @@
+ID,Title,Owner,StartPI,EndPI,ParentId,Status
+goal-1,Backend Modernization Initiative,,,,,
+goal-1-scope-1,Cloud Migration Phase 1,Datadogs,25.1,25.3,goal-1,in-progress
+08dbc772-5557-47f1-b51d-902a87488db3,New Item 123,Rubber Duckies,25.1,25.2,goal-1-scope-1,completed
+goal-1-scope-1-feature-1,Database migration to DynamoDB,Rubber Duckies,25.1,25.2,goal-1-scope-1,completed
+goal-1-scope-1-feature-2,API gateway setup,Rubber Duckies,25.2,25.3,goal-1-scope-1,in-progress
+goal-1-scope-1-feature-3,Load balancer configuration,Promise Keepers,25.1,25.2,goal-1-scope-1,completed
+goal-1-scope-1-feature-5,Monitoring and alerting setup,Null Terminators,25.2,25.4,goal-1-scope-1,in-progress
+goal-1-scope-2,Microservices Architecture,Infinite Loopers,25.2,25.3,goal-1,in-progress
+9f83095a-511d-4912-9351-11c88bd5ac9a,Test item 1,Hot Module Reloaders,25.2,25.3,goal-1-scope-2,planned
+goal-1-scope-2-feature-1,User service extraction,Hot Module Reloaders,25.2,25.2,goal-1-scope-2,completed
+goal-1-scope-2-feature-2,Payment service extraction,Datadogs,25.2,25.3,goal-1-scope-2,in-progress
+goal-1-scope-2-feature-3,Notification service extraction,Rubber Duckies,25.3,25.3,goal-1-scope-2,planned
+goal-1-scope-2-feature-4,Service mesh implementation,Promise Keepers,25.3,25.3,goal-1-scope-2,planned
+goal-1-scope-2-feature-5,API versioning strategy,Console Loggers,25.2,25.3,goal-1-scope-2,in-progress
+goal-1-scope-3,Security Hardening,Null Terminators,25.2,25.4,goal-1,in-progress
+goal-1-scope-3-feature-1,OAuth 2.0 implementation,Infinite Loopers,25.2,25.2,goal-1-scope-3,completed
+goal-1-scope-3-feature-2,Encryption at rest,Hot Module Reloaders,25.2,25.3,goal-1-scope-3,in-progress
+goal-1-scope-3-feature-3,Penetration testing,Datadogs,25.3,25.3,goal-1-scope-3,planned
+goal-1-scope-3-feature-4,WAF configuration,Rubber Duckies,25.3,25.4,goal-1-scope-3,planned
+goal-1-scope-3-feature-5,Security audit compliance,Promise Keepers,25.4,25.4,goal-1-scope-3,planned
+goal-1-scope-4,Performance Optimization,Console Loggers,25.3,25.4,goal-1,planned
+goal-1-scope-4-feature-1,Database query optimization,Null Terminators,25.3,25.3,goal-1-scope-4,planned
+goal-1-scope-4-feature-2,Caching layer implementation,Infinite Loopers,25.3,25.3,goal-1-scope-4,planned
+goal-1-scope-4-feature-3,Frontend bundle optimization,Hot Module Reloaders,25.3,25.4,goal-1-scope-4,planned
+goal-1-scope-4-feature-4,Lazy loading implementation,Datadogs,25.4,25.5,goal-1-scope-4,planned
+goal-1-scope-4-feature-5,Image optimization pipeline,Rubber Duckies,25.4,25.4,goal-1-scope-4,planned
+goal-1-scope-5,DevOps Automation,Promise Keepers,25.1,25.3,goal-1,in-progress
+goal-1-scope-5-feature-1,CI/CD pipeline setup,Console Loggers,25.1,25.1,goal-1-scope-5,completed
+goal-1-scope-5-feature-2,Infrastructure as Code,Null Terminators,25.1,25.2,goal-1-scope-5,completed
+goal-1-scope-5-feature-3,Automated testing framework,Infinite Loopers,25.2,25.2,goal-1-scope-5,completed
+goal-1-scope-5-feature-4,Container orchestration,Hot Module Reloaders,25.2,25.3,goal-1-scope-5,in-progress
+goal-1-scope-5-feature-5,Deployment rollback automation,Datadogs,25.3,25.4,goal-1-scope-5,planned
+goal-2,Customer Experience Enhancement,,,,,
+goal-2-scope-1,Mobile App Redesign,Rubber Duckies,25.1,25.2,goal-2,completed
+goal-2-scope-1-feature-1,User research and personas,Promise Keepers,25.1,25.1,goal-2-scope-1,completed
+goal-2-scope-1-feature-2,UI/UX wireframes,Console Loggers,25.1,25.1,goal-2-scope-1,completed
+goal-2-scope-1-feature-3,Design system update,Null Terminators,25.1,25.2,goal-2-scope-1,completed
+goal-2-scope-1-feature-4,React Native implementation,Infinite Loopers,25.2,25.2,goal-2-scope-1,completed
+goal-2-scope-1-feature-5,A/B testing and launch,Hot Module Reloaders,25.2,25.2,goal-2-scope-1,completed
+goal-2-scope-2,Personalization Engine,Datadogs,25.1,25.3,goal-2,in-progress
+goal-2-scope-2-feature-1,User behavior tracking,Rubber Duckies,25.1,25.1,goal-2-scope-2,completed
+goal-2-scope-2-feature-3,Recommendation algorithm,Console Loggers,25.2,25.2,goal-2-scope-2,completed
+goal-2-scope-2-feature-4,Dynamic content delivery,Null Terminators,25.2,25.3,goal-2-scope-2,completed
+goal-2-scope-2-feature-5,Performance metrics dashboard,Infinite Loopers,25.3,25.3,goal-2-scope-2,completed
+goal-2-scope-3,Omnichannel Support,Hot Module Reloaders,25.2,25.3,goal-2,in-progress
+goal-2-scope-3-feature-1,Live chat integration,Datadogs,25.2,25.2,goal-2-scope-3,completed
+goal-2-scope-3-feature-2,Social media integration,Rubber Duckies,25.2,25.2,goal-2-scope-3,completed
+goal-2-scope-3-feature-3,Email support automation,Promise Keepers,25.2,25.3,goal-2-scope-3,in-progress
+goal-2-scope-3-feature-4,Voice support system,Console Loggers,25.3,25.3,goal-2-scope-3,planned
+goal-2-scope-3-feature-5,Unified ticket management,Null Terminators,25.2,25.3,goal-2-scope-3,in-progress
+goal-2-scope-4,Self-Service Portal,Infinite Loopers,25.1,25.2,goal-2,completed
+goal-2-scope-4-feature-1,Knowledge base creation,Hot Module Reloaders,25.1,25.1,goal-2-scope-4,completed
+goal-2-scope-4-feature-2,FAQ chatbot,Datadogs,25.1,25.2,goal-2-scope-4,completed
+goal-2-scope-4-feature-3,Video tutorials,Rubber Duckies,25.1,25.2,goal-2-scope-4,completed
+goal-2-scope-4-feature-4,Search functionality,Promise Keepers,25.2,25.2,goal-2-scope-4,completed
+goal-2-scope-4-feature-5,User feedback system,Console Loggers,25.2,25.2,goal-2-scope-4,completed
+goal-2-scope-5,Loyalty Program,Null Terminators,25.2,25.3,goal-2,in-progress
+goal-2-scope-5-feature-1,Points system design,Infinite Loopers,25.2,25.2,goal-2-scope-5,completed
+goal-2-scope-5-feature-2,Rewards catalog,Hot Module Reloaders,25.2,25.2,goal-2-scope-5,completed
+goal-2-scope-5-feature-3,Tier progression system,Datadogs,25.2,25.3,goal-2-scope-5,in-progress
+goal-2-scope-5-feature-4,Partner integrations,Rubber Duckies,25.3,25.3,goal-2-scope-5,planned
+goal-2-scope-5-feature-5,Analytics and reporting,Promise Keepers,25.3,25.3,goal-2-scope-5,planned
+goal-3,Data Analytics Platform,,,,,
+goal-3-scope-1,Data Warehouse,Console Loggers,25.2,25.3,goal-3,in-progress
+goal-3-scope-1-feature-1,Schema design,Null Terminators,25.2,25.2,goal-3-scope-1,completed
+goal-3-scope-1-feature-2,ETL pipeline setup,Infinite Loopers,25.2,25.2,goal-3-scope-1,completed
+goal-3-scope-1-feature-3,Data quality checks,Hot Module Reloaders,25.2,25.3,goal-3-scope-1,in-progress
+goal-3-scope-1-feature-4,Historical data migration,Datadogs,25.3,25.3,goal-3-scope-1,planned
+goal-3-scope-1-feature-5,Performance tuning,Rubber Duckies,25.3,25.3,goal-3-scope-1,planned
+goal-3-scope-2,Business Intelligence Tools,Promise Keepers,25.3,25.4,goal-3,planned
+goal-3-scope-2-feature-1,Dashboard framework,Console Loggers,25.3,25.3,goal-3-scope-2,planned
+goal-3-scope-2-feature-2,Report builder,Null Terminators,25.3,25.3,goal-3-scope-2,planned
+goal-3-scope-2-feature-3,Data visualization library,Infinite Loopers,25.3,25.4,goal-3-scope-2,planned
+goal-3-scope-2-feature-4,Scheduled reports,Hot Module Reloaders,25.4,25.4,goal-3-scope-2,planned
+goal-3-scope-2-feature-5,Export functionality,Datadogs,25.4,25.4,goal-3-scope-2,planned
+goal-3-scope-3,Real-time Analytics,Rubber Duckies,25.3,25.4,goal-3,planned
+goal-3-scope-3-feature-1,Stream processing setup,Promise Keepers,25.3,25.3,goal-3-scope-3,planned
+goal-3-scope-3-feature-2,Event tracking system,Console Loggers,25.3,25.3,goal-3-scope-3,planned
+goal-3-scope-3-feature-3,Real-time aggregation,Null Terminators,25.3,25.4,goal-3-scope-3,planned
+goal-3-scope-3-feature-4,Alert system,Infinite Loopers,25.4,25.4,goal-3-scope-3,planned
+goal-3-scope-3-feature-5,Live dashboard updates,Hot Module Reloaders,25.4,25.4,goal-3-scope-3,planned
+goal-3-scope-4,Predictive Analytics,Datadogs,25.4,25.5,goal-3,planned
+goal-3-scope-4-feature-1,ML infrastructure,Rubber Duckies,25.4,25.4,goal-3-scope-4,planned
+goal-3-scope-4-feature-2,Feature engineering,Promise Keepers,25.4,25.4,goal-3-scope-4,planned
+goal-3-scope-4-feature-3,Model training pipeline,Console Loggers,25.4,25.4,goal-3-scope-4,planned
+goal-3-scope-4-feature-4,Prediction API,Null Terminators,25.4,25.4,goal-3-scope-4,planned
+goal-3-scope-4-feature-5,Model monitoring,Infinite Loopers,25.4,25.4,goal-3-scope-4,planned
+goal-3-scope-5,Data Governance,Hot Module Reloaders,25.2,25.3,goal-3,in-progress
+goal-3-scope-5-feature-1,Data catalog,Datadogs,25.2,25.2,goal-3-scope-5,completed
+goal-3-scope-5-feature-2,Access control policies,Rubber Duckies,25.2,25.3,goal-3-scope-5,in-progress
+goal-3-scope-5-feature-3,Data lineage tracking,Promise Keepers,25.2,25.3,goal-3-scope-5,in-progress
+goal-3-scope-5-feature-4,Compliance reporting,Console Loggers,25.3,25.3,goal-3-scope-5,planned
+goal-3-scope-5-feature-5,Audit trails,Null Terminators,25.3,25.3,goal-3-scope-5,planned
+goal-4,E-commerce Platform Expansion,,,,,
+goal-4-scope-1,Marketplace Integration,Infinite Loopers,25.1,25.2,goal-4,completed
+goal-4-scope-1-feature-1,Seller onboarding,Hot Module Reloaders,25.1,25.1,goal-4-scope-1,completed
+goal-4-scope-1-feature-2,Product listing management,Datadogs,25.1,25.1,goal-4-scope-1,completed
+goal-4-scope-1-feature-3,Commission system,Rubber Duckies,25.1,25.2,goal-4-scope-1,completed
+goal-4-scope-1-feature-4,Seller dashboard,Promise Keepers,25.2,25.2,goal-4-scope-1,completed
+goal-4-scope-1-feature-5,Review and rating system,Console Loggers,25.2,25.2,goal-4-scope-1,completed
+goal-4-scope-2,International Shipping,Null Terminators,25.2,25.3,goal-4,in-progress
+goal-4-scope-2-feature-1,Multi-currency support,Infinite Loopers,25.2,25.2,goal-4-scope-2,completed
+goal-4-scope-2-feature-2,Customs documentation,Hot Module Reloaders,25.2,25.2,goal-4-scope-2,completed
+goal-4-scope-2-feature-3,Carrier integrations,Datadogs,25.2,25.3,goal-4-scope-2,in-progress
+goal-4-scope-2-feature-4,Tax calculation,Rubber Duckies,25.3,25.3,goal-4-scope-2,planned
+goal-4-scope-2-feature-5,Shipping rate calculator,Promise Keepers,25.3,25.3,goal-4-scope-2,planned
+goal-4-scope-3,Subscription Service,Console Loggers,25.3,25.4,goal-4,planned
+goal-4-scope-3-feature-1,Subscription plans,Null Terminators,25.3,25.3,goal-4-scope-3,planned
+goal-4-scope-3-feature-2,Recurring billing,Infinite Loopers,25.3,25.3,goal-4-scope-3,planned
+goal-4-scope-3-feature-3,Subscription management,Hot Module Reloaders,25.3,25.4,goal-4-scope-3,planned
+goal-4-scope-3-feature-4,Cancellation flow,Datadogs,25.4,25.4,goal-4-scope-3,planned
+goal-4-scope-3-feature-5,Subscription analytics,Rubber Duckies,25.4,25.4,goal-4-scope-3,planned
+goal-4-scope-4,Inventory Management,Promise Keepers,25.1,25.2,goal-4,completed
+goal-4-scope-4-feature-1,Stock tracking system,Console Loggers,25.1,25.1,goal-4-scope-4,completed
+goal-4-scope-4-feature-2,Warehouse management,Null Terminators,25.1,25.1,goal-4-scope-4,completed
+goal-4-scope-4-feature-3,Auto-reorder system,Infinite Loopers,25.1,25.2,goal-4-scope-4,completed
+goal-4-scope-4-feature-4,Low stock alerts,Hot Module Reloaders,25.2,25.2,goal-4-scope-4,completed
+goal-4-scope-4-feature-5,Inventory reports,Datadogs,25.2,25.2,goal-4-scope-4,completed
+goal-4-scope-5,AR Shopping Experience,Rubber Duckies,25.4,25.6,goal-4,planned
+goal-4-scope-5-feature-1,3D product models,Promise Keepers,25.4,25.4,goal-4-scope-5,planned
+goal-4-scope-5-feature-2,AR viewer app,Console Loggers,25.4,25.5,goal-4-scope-5,planned
+goal-4-scope-5-feature-3,Virtual try-on,Null Terminators,25.5,25.5,goal-4-scope-5,planned
+goal-4-scope-5-feature-4,Room visualization,Infinite Loopers,25.5,25.6,goal-4-scope-5,planned
+goal-4-scope-5-feature-5,Social sharing integration,Hot Module Reloaders,25.6,25.6,goal-4-scope-5,planned
