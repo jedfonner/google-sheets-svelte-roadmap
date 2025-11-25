@@ -179,9 +179,17 @@
     if (children.length === 0) {
       return null;
     }
+    const grandChildren = items.filter((item) =>
+      children.some((child) => child.id === item.parentId),
+    );
+    const itemsToCheck = grandChildren.length > 0 ? grandChildren : children;
+
     let startIndex = PIs.length - 1;
     let endIndex = 0;
-    children.forEach((child) => {
+    itemsToCheck.forEach((child) => {
+      if (!child.startPi || !child.endPi) {
+        return;
+      }
       const childStartIndex = PIs.indexOf(child.startPi);
       const childEndIndex = PIs.indexOf(child.endPi);
       if (childStartIndex !== -1 && childStartIndex < startIndex) {
@@ -199,16 +207,21 @@
 
   function computeStatusFromChildren(item: RoadmapItem): string {
     const children = items.filter((i) => i.parentId === item.id);
-    if (children.length === 0) {
+    const grandChildren = items.filter((item) =>
+      children.some((child) => child.id === item.parentId),
+    );
+    const itemsToCheck = grandChildren.length > 0 ? grandChildren : children;
+
+    if (itemsToCheck.length === 0) {
       return 'planned';
     }
-    if (children.every((child) => child.status === 'completed')) {
+    if (itemsToCheck.every((child) => child.status === 'completed')) {
       return 'completed';
     }
     if (
-      children.some((child) => child.status === 'in-progress') ||
-      (children.some((child) => child.status === 'completed') &&
-        children.some((child) => child.status === 'planned'))
+      itemsToCheck.some((child) => child.status === 'in-progress') ||
+      (itemsToCheck.some((child) => child.status === 'completed') &&
+        itemsToCheck.some((child) => child.status === 'planned'))
     ) {
       return 'in-progress';
     }
