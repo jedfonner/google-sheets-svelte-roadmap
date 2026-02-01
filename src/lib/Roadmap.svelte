@@ -48,7 +48,7 @@
 
   let filteredItems = $derived.by(() => {
     return items.filter((item) => {
-      const isCollapsed = hiddenItems.includes(item.parentId);
+      const isCollapsed = item.parentId && hiddenItems.includes(item.parentId);
       const matchesTitle =
         filter.title === '' || item.title.toLowerCase().includes(filter.title.toLowerCase());
       const matchesOwner =

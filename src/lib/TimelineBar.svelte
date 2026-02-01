@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { type RoadmapItem } from '../types';
   import { ROW_START_INDEX, COLUMN_START_INDEX } from './Config.svelte';
 
   let {
