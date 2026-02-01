@@ -17,22 +17,7 @@
   });
 
   const getDataFromServer = async () => {
-    // @ts-ignore
-    if (!globalThis.inGAS) {
-      console.warn('Not running in GAS environment. Loading local data.');
-      try {
-        import('./roadmap-data.json').then((module) => {
-          items = module.default as RoadmapItem[];
-          status = 'loaded';
-        });
-      } catch (jsonError) {
-        console.error('Error loading local JSON data:', jsonError);
-        status = 'error';
-      }
-      return;
-    }
-    // @ts-ignore
-    await google.script.run
+    await window.google.script.run
       .withSuccessHandler((response: any) => {
         console.log('Loaded data from Spreadsheet', response);
         status = 'loaded';
