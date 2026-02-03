@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { RoadmapItem } from './types';
+  import type { RoadmapItem } from './global';
   import Roadmap from './lib/Roadmap.svelte';
   import { onMount } from 'svelte';
 

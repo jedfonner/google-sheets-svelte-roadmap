@@ -48,10 +48,14 @@
     "id": "goal-1-scope-1-feature-4",
     "title": "CDN integration",
     "owner": "Null Terminators",
-    "startPi": "25.2",
-    "endPi": "25.2",
+    "startPi": "25.3",
+    "endPi": "25.4",
     "parentId": "goal-1-scope-1",
-    "status": "completed"
+    "status": "completed",
+    "dependencies": [
+      "goal-1-scope-1-feature-2",
+      "goal-1-scope-1-feature-3"
+    ]
   },
   {
     "id": "goal-1-scope-1-feature-5",

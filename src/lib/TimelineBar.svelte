@@ -9,6 +9,7 @@
     index,
     onChange,
     editable = true,
+    itemId,
   } = $props();
 
   // Function to get grid column span for a timeline bar
@@ -119,6 +120,7 @@
   onmousedown={(e) => startDrag(e, index, 'move')}
   style="grid-row: {index + ROW_START_INDEX}; grid-column: {getColumnSpan(startPi, endPi)
     .start} / {getColumnSpan(startPi, endPi).end};"
+  data-item-id={itemId}
 >
   <div
     class="resize-handle resize-handle-start"

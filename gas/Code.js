@@ -44,6 +44,7 @@ function getRoadmapData() {
   const endPiCol = headers.indexOf('EndPI');
   const parentIdCol = headers.indexOf('ParentId');
   const statusCol = headers.indexOf('Status');
+  const dependencies = headers.indexOf('Dependencies')
 
   // Convert the 2D array from the shee tinto an array of objects
   const data = dataRows.map((row) => ({
@@ -54,9 +55,10 @@ function getRoadmapData() {
     endPi: row[endPiCol].toString(),
     parentId: row[parentIdCol].toString(),
     status: row[statusCol].toString(),
+    dependencies: row[dependencies].toString().split(','),
   }));
 
-  Logger.log('Returning data' + JSON.stringify(data).slice(0, 1000) +"..."); // Log only first 1000 characters to avoid excessive logging
+  Logger.log('Returning data' + JSON.stringify(data).slice(0, 1000) + "..."); // Log only first 1000 characters to avoid excessive logging
   docCache.put('roadmapData', JSON.stringify(data)); // Cache data for future requests
   return data;
 }
@@ -87,12 +89,14 @@ function updateSpreadsheet(updatedItem) {
       const endPiCol = headers.indexOf('EndPI');
       const parentIdCol = headers.indexOf('ParentId');
       const statusCol = headers.indexOf('Status');
+      const dependenciesCol = headers.indexOf('Dependencies');
       sheet.getRange(rowIndex + 1, titleCol + 1).setValue(updatedItem.title);
       sheet.getRange(rowIndex + 1, ownerCol + 1).setValue(updatedItem.owner);
       sheet.getRange(rowIndex + 1, startPiCol + 1).setValue(updatedItem.startPi);
       sheet.getRange(rowIndex + 1, endPiCol + 1).setValue(updatedItem.endPi);
       sheet.getRange(rowIndex + 1, parentIdCol + 1).setValue(updatedItem.parentId);
       sheet.getRange(rowIndex + 1, statusCol + 1).setValue(updatedItem.status);
+      sheet.getRange(rowIndex + 1, dependenciesCol + 1).setValue(updatedItem.dependencies.join(','));
       Logger.log('Updated row ' + (rowIndex + 1) + ' with new data');
       clearCache();
       return true;

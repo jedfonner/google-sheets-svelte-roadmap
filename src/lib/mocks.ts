@@ -1,4 +1,4 @@
-import type { RoadmapItem } from '../types';
+import type { ServerFunctions, RoadmapItem } from '../global';
 
 // Add your server functions here
 export const mocks: ServerFunctions = {

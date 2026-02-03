@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ROW_START_INDEX, COLUMN_START_INDEX, STATUS_OPTIONS } from './Config.svelte';
-  import type { RoadmapItem } from '../types';
+  import type { RoadmapItem } from '../global';
   import Button from './Button.svelte';
   import CollapseToggle from './CollapseToggle.svelte';
   import Textbox from './Textbox.svelte';
@@ -135,6 +135,7 @@
     {index}
     onChange={() => updateSpreadsheet(item)}
     editable={false}
+    itemId={item.id}
   />
 {:else}
   <!-- ignore warnings about binding to non-reactive property-->
@@ -145,6 +146,7 @@
     status={item.status}
     {index}
     onChange={() => updateSpreadsheet(item)}
+    itemId={item.id}
   />
 {/if}
 
