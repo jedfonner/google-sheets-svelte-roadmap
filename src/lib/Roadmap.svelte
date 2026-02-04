@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { RoadmapItem } from '../global';
   import { COLUMN_START_INDEX } from './Config.svelte';
+  import DependencyLines from './DependencyLines.svelte';
   import RoadmapRow from './RoadmapRow.svelte';
 
   interface Props {
@@ -291,10 +292,14 @@
       {toggleVisibility}
     />
   {/each}
+
+  <!-- Dependency Lines -->
+  <DependencyLines items={filteredItems} />
 </div>
 
 <style>
   .roadmap {
+    position: relative;
     display: grid;
     grid-template-columns: 300px 150px 150px repeat(var(--num-PIs), 1fr);
     grid-auto-rows: 40px;
