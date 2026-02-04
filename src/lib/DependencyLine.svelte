@@ -2,8 +2,6 @@
   import { onMount } from 'svelte';
   import { type RoadmapItem } from '../global';
   let { item, dependent } = $props();
-  $inspect('DependencyLine item', item);
-  $inspect('DependencyLine dependent', dependent);
   interface Line {
     x1: number;
     y1: number;
@@ -57,8 +55,6 @@
       container?.removeEventListener('scroll', () => updateLine(item, dependent));
     };
   });
-
-  $inspect('Line', line);
 </script>
 
 {#if line}
@@ -80,7 +76,7 @@
             L ${midX} ${line.y2}
             L ${line.x2 - 5} ${line.y2}`}
         stroke="transparent"
-        stroke-width="20"
+        stroke-width="10"
         fill="none"
         style="pointer-events: stroke;"
       >

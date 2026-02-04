@@ -74,7 +74,7 @@ function updateSpreadsheet(updatedItem) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   if (!sheet) {
     Logger.log('Sheet not found: ' + SHEET_NAME);
-    return;
+    return false;
   }
   const dataRange = sheet.getDataRange();
   const values = dataRange.getValues();
