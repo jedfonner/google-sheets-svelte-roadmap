@@ -13,30 +13,26 @@
   let line: Line | undefined = $state();
 
   const updateLine = (from: RoadmapItem, to: RoadmapItem) => {
-    console.log('updateLine called');
-    const fromId = from.id;
-    const toId = to.id;
-    console.log(`Trying to build line from ${fromId} to ${toId}`);
-    const fromEl = document.querySelector(`[data-item-id="${fromId}`);
-    const toEl = document.querySelector(`[data-item-id="${toId}`);
-    const container = document.querySelector('.roadmap-container');
+    const fromEl = document.querySelector(`[data-item-id="${from.id}`);
+    const toEl = document.querySelector(`[data-item-id="${to.id}`);
+    const container = document.querySelector('.roadmap');
 
-    if (!fromEl || !toEl) {
-      console.warn('Cannot find fromEl or toEl');
+    if (!fromEl || !toEl || !container) {
       return;
     }
+    const containerRect = container.getBoundingClientRect();
     const rect1 = fromEl.getBoundingClientRect();
-    console.log(`Rect1 bounding box: ${JSON.stringify(rect1)}`);
     const rect2 = toEl.getBoundingClientRect();
-    console.log(`Rect2 bounding box: ${JSON.stringify(rect2)}`);
 
-    // Right edge center of div1
-    const x1 = rect1.left;
-    const y1 = rect1.top + rect1.height / 2;
+    // Convert viewport-relative coords to container-relative (accounting for scroll)
+    const offsetX = containerRect.left - container.scrollLeft;
+    const offsetY = containerRect.top - container.scrollTop;
 
-    // Left edge center of div2
-    const x2 = rect2.right;
-    const y2 = rect2.top + rect2.height / 2;
+    const x1 = rect1.left - offsetX;
+    const y1 = rect1.top - offsetY + rect1.height / 2;
+
+    const x2 = rect2.right - offsetX;
+    const y2 = rect2.top - offsetY + rect2.height / 2;
 
     line = { x1, y1, x2, y2 };
   };
@@ -84,7 +80,7 @@
             L ${midX} ${line.y2}
             L ${line.x2 - 5} ${line.y2}`}
         stroke="transparent"
-        stroke-width="10"
+        stroke-width="20"
         fill="none"
         style="pointer-events: stroke;"
       >
@@ -109,16 +105,14 @@
 
 <style>
   .line-overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 9999; /* High enough to be above everything */
-  }
-  .line-overlay:hover {
-    z-index: 10000;
+    z-index: 50; /* Above timeline bars (10) but below sticky header (100) */
+    overflow: visible;
   }
 
   .dependency-line {
