@@ -158,7 +158,7 @@
       box-shadow 0.2s;
     position: relative;
     z-index: 10;
-    margin: 2px;
+    margin: 2px 4px;
     user-select: none;
     cursor: grab;
   }

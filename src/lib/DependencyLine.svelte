@@ -69,27 +69,41 @@
   {@const midX = line.x1 + (line.x2 - line.x1) * (1 / 3)}
   <svg class="line-overlay">
     <defs>
-      <marker
-        id="arrow-start"
-        markerWidth="10"
-        markerHeight="10"
-        refX="0"
-        refY="5"
-        orient="auto-start-reverse"
-      >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="black" />
+      <marker id="arrow-start" markerWidth="10" markerHeight="10" refX="0" refY="5" orient="0">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
+      </marker>
+      <marker id="circle-end" markerWidth="6" markerHeight="6" refX="3" refY="3">
+        <circle cx="3" cy="3" r="3" fill="context-stroke" />
       </marker>
     </defs>
-    <path
-      d={`M ${line.x1 - 10} ${line.y1}
-          L ${midX} ${line.y1}
-          L ${midX} ${line.y2}
-          L ${line.x2} ${line.y2}`}
-      stroke="black"
-      stroke-width="1"
-      fill="none"
-      marker-start="url(#arrow-start)"
-    />
+    <g class="dependency-line">
+      <!-- Invisible wider path for easier hover -->
+      <path
+        d={`M ${line.x1 - 5} ${line.y1}
+            L ${midX} ${line.y1}
+            L ${midX} ${line.y2}
+            L ${line.x2 - 5} ${line.y2}`}
+        stroke="transparent"
+        stroke-width="10"
+        fill="none"
+        style="pointer-events: stroke;"
+      >
+        <title>"{item.title}" depends on "{dependent.title}"</title>
+      </path>
+      <!-- Visible line -->
+      <path
+        class="visible-line"
+        d={`M ${line.x1 - 5} ${line.y1}
+            L ${midX} ${line.y1}
+            L ${midX} ${line.y2}
+            L ${line.x2 - 5} ${line.y2}`}
+        stroke="black"
+        stroke-width="1"
+        fill="none"
+        marker-start="url(#arrow-start)"
+        marker-end="url(#circle-end)"
+      />
+    </g>
   </svg>
 {/if}
 
@@ -102,5 +116,16 @@
     height: 100%;
     pointer-events: none;
     z-index: 9999; /* High enough to be above everything */
+  }
+  .line-overlay:hover {
+    z-index: 10000;
+  }
+
+  .dependency-line {
+    pointer-events: auto;
+  }
+
+  .dependency-line:hover .visible-line {
+    stroke: red;
   }
 </style>
