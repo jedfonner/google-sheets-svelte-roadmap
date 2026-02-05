@@ -3,10 +3,9 @@
 
   let {
     PIs,
-    startPi = $bindable(),
-    endPi = $bindable(),
+    item = $bindable(),
     status,
-    index,
+    rowNum,
     onChange,
     editable = true,
     itemId,
@@ -32,16 +31,16 @@
 
   function startDrag(
     e: MouseEvent,
-    index: number,
+    itemId: number,
     mode: 'move' | 'resize-start' | 'resize-end',
   ) {
     if (e.button !== 0) return; // Only left click
 
-    draggedItem = index;
+    draggedItem = itemId;
     dragMode = mode;
     dragStartX = e.clientX;
-    initialStartPiIndex = PIs.indexOf(startPi);
-    initialEndPiIndex = PIs.indexOf(endPi);
+    initialStartPiIndex = PIs.indexOf(item.startPi);
+    initialEndPiIndex = PIs.indexOf(item.endPi);
 
     document.addEventListener('mousemove', handleDrag);
     document.addEventListener('mouseup', stopDrag);
@@ -76,9 +75,9 @@
       const newEndIdx = newStartIdx + duration;
 
       // Update the item's PIs
-      if (startPi !== PIs[newStartIdx] || endPi !== PIs[newEndIdx]) {
-        startPi = PIs[newStartIdx];
-        endPi = PIs[newEndIdx];
+      if (item.startPi !== PIs[newStartIdx] || item.endPi !== PIs[newEndIdx]) {
+        item.startPi = PIs[newStartIdx];
+        item.endPi = PIs[newEndIdx];
         onChange && onChange();
       }
     } else if (dragMode === 'resize-start') {
@@ -87,8 +86,8 @@
         0,
         Math.min(initialEndPiIndex, initialStartPiIndex + columnsShifted),
       );
-      if (startPi !== PIs[newStartIdx]) {
-        startPi = PIs[newStartIdx];
+      if (item.startPi !== PIs[newStartIdx]) {
+        item.startPi = PIs[newStartIdx];
         onChange && onChange();
       }
     } else if (dragMode === 'resize-end') {
@@ -97,8 +96,8 @@
         initialStartPiIndex,
         Math.min(PIs.length - 1, initialEndPiIndex + columnsShifted),
       );
-      if (endPi !== PIs[newEndIdx]) {
-        endPi = PIs[newEndIdx];
+      if (item.endPi !== PIs[newEndIdx]) {
+        item.endPi = PIs[newEndIdx];
         onChange && onChange();
       }
     }
@@ -114,27 +113,29 @@
 
 <div
   class="timeline-bar status-{status} editable-{editable}"
-  class:dragging={draggedItem === index}
+  class:dragging={draggedItem === itemId}
   role="button"
   tabindex="0"
-  onmousedown={(e) => startDrag(e, index, 'move')}
-  style="grid-row: {index + ROW_START_INDEX}; grid-column: {getColumnSpan(startPi, endPi)
-    .start} / {getColumnSpan(startPi, endPi).end};"
+  onmousedown={(e) => startDrag(e, itemId, 'move')}
+  style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: {getColumnSpan(
+    item.startPi,
+    item.endPi,
+  ).start} / {getColumnSpan(item.startPi, item.endPi).end};"
   data-item-id={itemId}
 >
   <div
     class="resize-handle resize-handle-start"
-    onmousedown={(e) => startDrag(e, index, 'resize-start')}
+    onmousedown={(e) => startDrag(e, itemId, 'resize-start')}
     role="button"
     tabindex="0"
     aria-label="Resize start"
   ></div>
   <div class="timeline-label">
-    {startPi} → {endPi}
+    {item.startPi} → {item.endPi}
   </div>
   <div
     class="resize-handle resize-handle-end"
-    onmousedown={(e) => startDrag(e, index, 'resize-end')}
+    onmousedown={(e) => startDrag(e, itemId, 'resize-end')}
     role="button"
     tabindex="0"
     aria-label="Resize end"
@@ -169,7 +170,7 @@
     cursor: grabbing;
   }
 
-  .timeline-bar:hover {
+  .timeline-bar:hover:not(.editable-false) {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }

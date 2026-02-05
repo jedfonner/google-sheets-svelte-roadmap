@@ -36,8 +36,7 @@
 
     return map;
   });
-  $inspect('items', items);
-  $inspect('idLevelMap', idLevelMap);
+  // $inspect('items', items);
 
   let filter = $state({
     title: '',
@@ -47,8 +46,8 @@
 
   let hiddenItems = $state([] as string[]);
 
-  let filteredItems = $derived.by(() => {
-    return items.filter((item) => {
+  let filteredItemIds = $derived.by(() => {
+    const filteredItems = items.filter((item) => {
       const isCollapsed = item.parentId && hiddenItems.includes(item.parentId);
       const matchesTitle =
         filter.title === '' || item.title.toLowerCase().includes(filter.title.toLowerCase());
@@ -58,6 +57,7 @@
         filter.status === '' || item.status === '' || item.status === filter.status;
       return !isCollapsed && matchesTitle && matchesOwner && matchesStatus;
     });
+    return filteredItems.map((item) => item.id);
   });
 
   function toggleVisibility(itemId: string, isVisible: boolean): void {
@@ -77,14 +77,8 @@
 
   async function updateSpreadsheet(item: RoadmapItem): Promise<boolean> {
     console.log('Updating item in spreadsheet:', $state.snapshot(item));
-    // @ts-ignore
-    if (!globalThis.inGAS) {
-      console.warn('Not running in GAS environment. Skipping update.');
-      return false;
-    }
     try {
-      // @ts-ignore
-      await google.script.run
+      await window.google.script.run
         .withSuccessHandler((response: boolean) => {
           console.log(`Spreadsheet ${response ? 'successfully updated' : 'failed to update'}`);
           return response;
@@ -273,14 +267,18 @@
   {/each}
 
   <!-- Background cells -->
-  {#each filteredItems as item, index}
+
+  {#each filteredItemIds as id, rowNum}
+    {@const item = items.filter((item) => item.id == id)?.[0]}
+    {@const itemIndex = items.indexOf(item)}
     {@const level = idLevelMap.get(item.id) ?? 0}
     {@const computedStatus = level <= 1 ? computeStatusFromChildren(item) : item.status}
     {@const computedDuration = level <= 1 ? computeDurationFromChildren(item) : null}
     {@const hasChildren = items.some((i) => i.parentId === item.id)}
+    <!-- To allow updating, need to bind to the original items state object-->
     <RoadmapRow
-      {item}
-      {index}
+      bind:item={items[itemIndex]}
+      {rowNum}
       {level}
       {computedStatus}
       {computedDuration}
@@ -294,7 +292,7 @@
   {/each}
 
   <!-- Dependency Lines -->
-  <DependencyLines items={filteredItems} />
+  <DependencyLines items={items.filter((item) => filteredItemIds.indexOf(item.id) >= 0)} />
 </div>
 
 <style>

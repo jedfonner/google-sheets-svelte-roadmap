@@ -13,7 +13,7 @@
     addChildItem: (parentItem: RoadmapItem) => void;
     removeItem: (item: RoadmapItem) => void;
     toggleVisibility?: (itemId: string, isVisible: boolean) => void;
-    index: number;
+    rowNum: number;
     level: number;
     computedStatus: string;
     computedDuration: { startPi: string; endPi: string } | null;
@@ -26,7 +26,7 @@
     addChildItem,
     removeItem,
     toggleVisibility,
-    index,
+    rowNum,
     level,
     computedStatus,
     computedDuration,
@@ -39,7 +39,7 @@
 {#if level === 0}
   <div
     class="cell title level-0"
-    style="grid-row: {index + ROW_START_INDEX}; grid-column: 1 / 3;"
+    style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1 / 3;"
   >
     <CollapseToggle itemId={item.id} {toggleVisibility} />
     <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
@@ -55,7 +55,7 @@
 {:else if level === 1}
   <div
     class="cell title level-1"
-    style="grid-row: {index + ROW_START_INDEX}; grid-column: 1 / 3;"
+    style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1 / 3;"
   >
     <CollapseToggle itemId={item.id} {toggleVisibility} />
     <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
@@ -78,7 +78,7 @@
 {:else}
   <div
     class="cell title level-{level}"
-    style="grid-row: {index + ROW_START_INDEX}; grid-column: 1;"
+    style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1;"
   >
     <span>‣</span>
     <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
@@ -98,7 +98,7 @@
     {/if}
   </div>
   <!-- Owner -->
-  <div class="cell owner" style="grid-row: {index + ROW_START_INDEX}; grid-column: 2;">
+  <div class="cell owner" style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 2;">
     <Textbox bind:value={item.owner} onChange={() => updateSpreadsheet(item)} />
   </div>
 {/if}
@@ -106,7 +106,7 @@
 <!-- Status -->
 <div
   class="cell status {computedStatus} level-{level}"
-  style="grid-row: {index + ROW_START_INDEX}; grid-column: 3;"
+  style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 3;"
 >
   {#if level <= 1}
     <span>{STATUS_OPTIONS.filter((item) => item.value === computedStatus)[0]?.label}</span>
@@ -122,17 +122,21 @@
 {#each PIs as _, i}
   <div
     class="cell pi-cell level-{level}"
-    style="grid-row: {index + ROW_START_INDEX}; grid-column: {i + COLUMN_START_INDEX};"
+    style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: {i + COLUMN_START_INDEX};"
   ></div>
 {/each}
 
 {#if level <= 1}
+  {@const headerItem = {
+    ...item,
+    startPi: computedDuration ? computedDuration.startPi : item.startPi,
+    endPi: computedDuration ? computedDuration.endPi : item.endPi,
+  }}
   <TimelineBar
     {PIs}
-    startPi={computedDuration ? computedDuration.startPi : item.startPi}
-    endPi={computedDuration ? computedDuration.endPi : item.endPi}
+    item={headerItem}
     status={computedStatus ? computedStatus : item.status}
-    {index}
+    {rowNum}
     onChange={() => updateSpreadsheet(item)}
     editable={false}
     itemId={item.id}
@@ -141,10 +145,9 @@
   <!-- ignore warnings about binding to non-reactive property-->
   <TimelineBar
     {PIs}
-    bind:startPi={item.startPi}
-    bind:endPi={item.endPi}
+    bind:item
     status={item.status}
-    {index}
+    {rowNum}
     onChange={() => updateSpreadsheet(item)}
     itemId={item.id}
   />

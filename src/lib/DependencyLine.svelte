@@ -11,8 +11,8 @@
   let line: Line | undefined = $state();
 
   const updateLine = (from: RoadmapItem, to: RoadmapItem) => {
-    const fromEl = document.querySelector(`[data-item-id="${from.id}`);
-    const toEl = document.querySelector(`[data-item-id="${to.id}`);
+    const fromEl = document.querySelector(`[data-item-id="${from?.id}`);
+    const toEl = document.querySelector(`[data-item-id="${to?.id}`);
     const container = document.querySelector('.roadmap');
 
     if (!fromEl || !toEl || !container) {
