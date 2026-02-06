@@ -21,8 +21,8 @@
     "id": "goal-1-scope-1-feature-1",
     "title": "Database migration to PostgreSQL",
     "owner": "Datadogs",
-    "startPi": "25.1",
-    "endPi": "25.1",
+    "startPi": "25.2",
+    "endPi": "25.2",
     "parentId": "goal-1-scope-1",
     "status": "completed"
   },
@@ -61,8 +61,8 @@
     "id": "goal-1-scope-1-feature-5",
     "title": "Monitoring and alerting setup",
     "owner": "Infinite Loopers",
-    "startPi": "25.3",
-    "endPi": "25.4",
+    "startPi": "25.4",
+    "endPi": "25.5",
     "parentId": "goal-1-scope-1",
     "status": "completed",
     "dependencies": [

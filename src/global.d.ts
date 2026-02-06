@@ -15,6 +15,7 @@ interface GasError {
   [key: string]: any;
 }
 
+export type RoadmapItemStatus = '' | 'planned' | 'in-progress' | 'completed';
 export interface RoadmapItem {
   id: string;
   title: string;
@@ -22,6 +23,6 @@ export interface RoadmapItem {
   startPi: string;
   endPi: string;
   parentId?: string;
-  status: '' | 'planned' | 'in-progress' | 'completed';
+  status: RoadmapItemStatus;
   dependencies?: Array<string>;
 }

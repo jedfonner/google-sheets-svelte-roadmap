@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ROW_START_INDEX, COLUMN_START_INDEX, STATUS_OPTIONS } from './Config.svelte';
-  import type { RoadmapItem } from '../global';
+  import type { RoadmapItem, RoadmapItemStatus } from '../global';
   import Button from './Button.svelte';
   import CollapseToggle from './CollapseToggle.svelte';
   import Textbox from './Textbox.svelte';
@@ -9,19 +9,21 @@
 
   interface Props {
     item: RoadmapItem;
+    allItems: RoadmapItem[];
     updateSpreadsheet: (item: RoadmapItem) => Promise<boolean>;
     addChildItem: (parentItem: RoadmapItem) => void;
     removeItem: (item: RoadmapItem) => void;
     toggleVisibility?: (itemId: string, isVisible: boolean) => void;
     rowNum: number;
     level: number;
-    computedStatus: string;
+    computedStatus: RoadmapItemStatus;
     computedDuration: { startPi: string; endPi: string } | null;
     hasChildren: boolean;
     PIs: string[];
   }
   let {
     item = $bindable(),
+    allItems = $bindable(),
     updateSpreadsheet,
     addChildItem,
     removeItem,
@@ -129,28 +131,14 @@
 {#if level <= 1}
   {@const headerItem = {
     ...item,
+    status: computedStatus ? computedStatus : item.status,
     startPi: computedDuration ? computedDuration.startPi : item.startPi,
     endPi: computedDuration ? computedDuration.endPi : item.endPi,
   }}
-  <TimelineBar
-    {PIs}
-    item={headerItem}
-    status={computedStatus ? computedStatus : item.status}
-    {rowNum}
-    onChange={() => updateSpreadsheet(item)}
-    editable={false}
-    itemId={item.id}
-  />
+  <TimelineBar {PIs} {allItems} item={headerItem} {rowNum} editable={false} />
 {:else}
   <!-- ignore warnings about binding to non-reactive property-->
-  <TimelineBar
-    {PIs}
-    bind:item
-    status={item.status}
-    {rowNum}
-    onChange={() => updateSpreadsheet(item)}
-    itemId={item.id}
-  />
+  <TimelineBar {PIs} {allItems} bind:item {rowNum} onChange={() => updateSpreadsheet(item)} />
 {/if}
 
 <style>

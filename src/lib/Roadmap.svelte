@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { RoadmapItem } from '../global';
+  import type { RoadmapItem, RoadmapItemStatus } from '../global';
   import { COLUMN_START_INDEX } from './Config.svelte';
   import DependencyLines from './DependencyLines.svelte';
   import RoadmapRow from './RoadmapRow.svelte';
@@ -200,7 +200,7 @@
     };
   }
 
-  function computeStatusFromChildren(item: RoadmapItem): string {
+  function computeStatusFromChildren(item: RoadmapItem): RoadmapItemStatus {
     const children = items.filter((i) => i.parentId === item.id);
     const grandChildren = items.filter((item) =>
       children.some((child) => child.id === item.parentId),
@@ -278,6 +278,7 @@
     <!-- To allow updating, need to bind to the original items state object-->
     <RoadmapRow
       bind:item={items[itemIndex]}
+      bind:allItems={items}
       {rowNum}
       {level}
       {computedStatus}

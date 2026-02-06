@@ -1,15 +1,23 @@
 <script lang="ts">
+  import type { RoadmapItem } from '../global';
   import { ROW_START_INDEX, COLUMN_START_INDEX } from './Config.svelte';
 
+  interface Props {
+    PIs: string[];
+    allItems: RoadmapItem[];
+    item: RoadmapItem;
+    rowNum: number;
+    onChange?: Function;
+    editable?: boolean;
+  }
   let {
     PIs,
+    allItems = $bindable(),
     item = $bindable(),
-    status,
     rowNum,
     onChange,
     editable = true,
-    itemId,
-  } = $props();
+  }: Props = $props();
 
   // Function to get grid column span for a timeline bar
   function getColumnSpan(startPi: string, endPi: string): { start: number; end: number } {
@@ -21,9 +29,43 @@
       end: endIndex >= 0 ? endIndex + COLUMN_START_INDEX + 1 : COLUMN_START_INDEX + PIs.length, // +4 to span to end of that column
     };
   }
+  function updateRelated(item: RoadmapItem) {
+    console.log('updateRelated running for', item.title, item.startPi, item.endPi);
+    // dependencies = items on which the specified item depends (aka in the items dependencies list)
+    const dependencies = allItems.filter(
+      (allItem) => item.dependencies && item.dependencies.indexOf(allItem.id) >= 0,
+    );
+    // dependees = items that have the specified item in their dependencies list
+    const dependees = allItems.filter(
+      (allItem) => allItem.dependencies && allItem.dependencies?.indexOf(item.id) >= 0,
+    );
+
+    // check if any dependents end after or on the updated item's startPi
+    // if so, don't allow the item's start to move any further earlier
+    dependencies.forEach((dependent) => {
+      console.log('Dependent', dependent.title, dependent.startPi, dependent.endPi);
+      if (PIs.indexOf(dependent.endPi) >= PIs.indexOf(item.startPi)) {
+        console.log('Fixing dependent problem');
+        const duration = PIs.indexOf(item.endPi) - PIs.indexOf(item.startPi);
+        item.startPi = PIs[PIs.indexOf(dependent.endPi) + 1];
+        item.endPi = PIs[PIs.indexOf(item.startPi) + duration];
+      }
+    });
+    // check if any dependees end after the item starts
+    // if so, push the item farther into the future
+    dependees.forEach((dependee) => {
+      console.log('Dependee', dependee.title, dependee.startPi, dependee.endPi);
+      if (item.endPi >= dependee.startPi) {
+        console.log('Fixing Dependee problem');
+        const duration = PIs.indexOf(dependee.endPi) - PIs.indexOf(dependee.startPi);
+        dependee.startPi = PIs[PIs.indexOf(item.endPi) + 1];
+        dependee.endPi = PIs[PIs.indexOf(dependee.startPi) + duration];
+      }
+    });
+  }
 
   // Drag state
-  let draggedItem = $state<number | null>(null);
+  let draggedItem = $state<string | null>(null);
   let dragStartX = $state(0);
   let initialStartPiIndex = $state(0);
   let initialEndPiIndex = $state(0);
@@ -31,7 +73,7 @@
 
   function startDrag(
     e: MouseEvent,
-    itemId: number,
+    itemId: string,
     mode: 'move' | 'resize-start' | 'resize-end',
   ) {
     if (e.button !== 0) return; // Only left click
@@ -78,6 +120,7 @@
       if (item.startPi !== PIs[newStartIdx] || item.endPi !== PIs[newEndIdx]) {
         item.startPi = PIs[newStartIdx];
         item.endPi = PIs[newEndIdx];
+        updateRelated(item);
         onChange && onChange();
       }
     } else if (dragMode === 'resize-start') {
@@ -88,6 +131,7 @@
       );
       if (item.startPi !== PIs[newStartIdx]) {
         item.startPi = PIs[newStartIdx];
+        updateRelated(item);
         onChange && onChange();
       }
     } else if (dragMode === 'resize-end') {
@@ -98,6 +142,8 @@
       );
       if (item.endPi !== PIs[newEndIdx]) {
         item.endPi = PIs[newEndIdx];
+        updateRelated(item);
+
         onChange && onChange();
       }
     }
@@ -112,20 +158,20 @@
 </script>
 
 <div
-  class="timeline-bar status-{status} editable-{editable}"
-  class:dragging={draggedItem === itemId}
+  class="timeline-bar status-{item.status} editable-{editable}"
+  class:dragging={draggedItem === item.id}
   role="button"
   tabindex="0"
-  onmousedown={(e) => startDrag(e, itemId, 'move')}
+  onmousedown={(e) => startDrag(e, item.id, 'move')}
   style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: {getColumnSpan(
     item.startPi,
     item.endPi,
   ).start} / {getColumnSpan(item.startPi, item.endPi).end};"
-  data-item-id={itemId}
+  data-item-id={item.id}
 >
   <div
     class="resize-handle resize-handle-start"
-    onmousedown={(e) => startDrag(e, itemId, 'resize-start')}
+    onmousedown={(e) => startDrag(e, item.id, 'resize-start')}
     role="button"
     tabindex="0"
     aria-label="Resize start"
@@ -135,7 +181,7 @@
   </div>
   <div
     class="resize-handle resize-handle-end"
-    onmousedown={(e) => startDrag(e, itemId, 'resize-end')}
+    onmousedown={(e) => startDrag(e, item.id, 'resize-end')}
     role="button"
     tabindex="0"
     aria-label="Resize end"
