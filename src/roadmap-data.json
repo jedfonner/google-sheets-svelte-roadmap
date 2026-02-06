@@ -51,7 +51,7 @@
     "startPi": "25.4",
     "endPi": "25.5",
     "parentId": "goal-1-scope-1",
-    "status": "completed",
+    "status": "in-progress",
     "dependencies": [
       "goal-1-scope-1-feature-2",
       "goal-1-scope-1-feature-3"
@@ -64,7 +64,7 @@
     "startPi": "25.4",
     "endPi": "25.5",
     "parentId": "goal-1-scope-1",
-    "status": "completed",
+    "status": "in-progress",
     "dependencies": [
       "goal-1-scope-1-feature-1"
     ]
@@ -103,16 +103,22 @@
     "startPi": "25.3",
     "endPi": "25.3",
     "parentId": "goal-1-scope-2",
-    "status": "planned"
+    "status": "planned",
+    "dependencies": [
+      "goal-1-scope-2-feature-1"
+    ]
   },
   {
     "id": "goal-1-scope-2-feature-4",
     "title": "Service mesh implementation",
     "owner": "Promise Keepers",
-    "startPi": "25.3",
-    "endPi": "25.3",
+    "startPi": "25.4",
+    "endPi": "25.4",
     "parentId": "goal-1-scope-2",
-    "status": "planned"
+    "status": "planned",
+    "dependencies": [
+      "goal-1-scope-2-feature-1"
+    ]
   },
   {
     "id": "goal-1-scope-2-feature-5",
@@ -175,7 +181,10 @@
     "startPi": "25.4",
     "endPi": "25.4",
     "parentId": "goal-1-scope-3",
-    "status": "planned"
+    "status": "planned",
+    "dependencies": [
+      "goal-1-scope-3-feature-1"
+    ]
   },
   {
     "id": "goal-1-scope-4",
@@ -220,7 +229,10 @@
     "startPi": "25.4",
     "endPi": "25.4",
     "parentId": "goal-1-scope-4",
-    "status": "planned"
+    "status": "planned",
+    "dependencies": [
+      "goal-1-scope-4-feature-2"
+    ]
   },
   {
     "id": "goal-1-scope-4-feature-5",
