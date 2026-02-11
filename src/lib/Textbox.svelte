@@ -7,7 +7,6 @@
   let isEditable = $state(false);
 
   function handleOnKeyDown(event: KeyboardEvent) {
-    event.preventDefault();
     if (event.key === 'Enter') {
       isEditable = false;
       onChange && onChange();
