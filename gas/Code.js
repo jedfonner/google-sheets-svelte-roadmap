@@ -55,7 +55,7 @@ function getRoadmapData() {
     endPi: row[endPiCol].toString(),
     parentId: row[parentIdCol].toString(),
     status: row[statusCol].toString(),
-    dependencies: row[dependencies].toString().split(','),
+    dependencies: !row[dependencies] ? [] : row[dependencies].toString().split(',')
   }));
 
   Logger.log('Returning data' + JSON.stringify(data).slice(0, 1000) + "..."); // Log only first 1000 characters to avoid excessive logging
@@ -83,6 +83,7 @@ function updateSpreadsheet(updatedItem) {
 
   for (let rowIndex = 1; rowIndex < values.length; rowIndex++) {
     if (values[rowIndex][idCol].toString() === updatedItem.id) {
+      Logger.log("Processing " + JSON.stringify(updatedItem));
       const titleCol = headers.indexOf('Title');
       const ownerCol = headers.indexOf('Owner');
       const startPiCol = headers.indexOf('StartPI');
@@ -96,7 +97,7 @@ function updateSpreadsheet(updatedItem) {
       sheet.getRange(rowIndex + 1, endPiCol + 1).setValue(updatedItem.endPi);
       sheet.getRange(rowIndex + 1, parentIdCol + 1).setValue(updatedItem.parentId);
       sheet.getRange(rowIndex + 1, statusCol + 1).setValue(updatedItem.status);
-      sheet.getRange(rowIndex + 1, dependenciesCol + 1).setValue(updatedItem.dependencies.join(','));
+      sheet.getRange(rowIndex + 1, dependenciesCol + 1).setValue(updatedItem.dependencies.filter(item => !!item).join(','));
       Logger.log('Updated row ' + (rowIndex + 1) + ' with new data');
       clearCache();
       return true;
