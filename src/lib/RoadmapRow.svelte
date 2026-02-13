@@ -71,7 +71,7 @@
     </div>
     {#if !hasChildren}
       <div class="button">
-        <Button size="small" onclick={() => removeItem(item)} title="Delete" style="negative"
+        <Button size="small" onclick={() => { if (confirm(`Delete "${item.title}"?`)) removeItem(item); }} title="Delete" style="negative"
           >X</Button
         >
       </div>
@@ -93,7 +93,7 @@
     {/if}
     {#if !hasChildren}
       <div class="button">
-        <Button size="small" onclick={() => removeItem(item)} title="Delete" style="negative"
+        <Button size="small" onclick={() => { if (confirm(`Delete "${item.title}"?`)) removeItem(item); }} title="Delete" style="negative"
           >X</Button
         >
       </div>
