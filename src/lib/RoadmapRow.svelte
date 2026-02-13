@@ -138,7 +138,7 @@
   <TimelineBar {PIs} {allItems} item={headerItem} {rowNum} editable={false} />
 {:else}
   <!-- ignore warnings about binding to non-reactive property-->
-  <TimelineBar {PIs} {allItems} bind:item {rowNum} onChange={() => updateSpreadsheet(item)} />
+  <TimelineBar {PIs} {allItems} bind:item {rowNum} persistChanges={updateSpreadsheet} />
 {/if}
 
 <style>

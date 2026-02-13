@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import type { RoadmapItem } from '../global';
   import { ROW_START_INDEX, COLUMN_START_INDEX } from './Config.svelte';
 
@@ -7,7 +8,9 @@
     allItems: RoadmapItem[];
     item: RoadmapItem;
     rowNum: number;
-    onChange?: Function;
+    persistChanges?: Function;
+    // onChange?: Function;
+    // onDependencyCreated?: (targetItem: RoadmapItem) => void;
     editable?: boolean;
   }
   let {
@@ -15,7 +18,9 @@
     allItems = $bindable(),
     item = $bindable(),
     rowNum,
-    onChange,
+    // onChange,
+    // onDependencyCreated,
+    persistChanges,
     editable = true,
   }: Props = $props();
 
@@ -30,7 +35,6 @@
     };
   }
   function updateRelated(item: RoadmapItem) {
-    console.log('updateRelated running for', item.title, item.startPi, item.endPi);
     // dependencies = items on which the specified item depends (aka in the items dependencies list)
     const dependencies = allItems.filter(
       (allItem) => item.dependencies && item.dependencies.indexOf(allItem.id) >= 0,
@@ -62,6 +66,122 @@
         dependee.endPi = PIs[PIs.indexOf(dependee.startPi) + duration];
       }
     });
+  }
+
+  // Shift key tracking
+  let shiftHeld = $state(false);
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Shift') shiftHeld = true;
+  }
+  function onKeyUp(e: KeyboardEvent) {
+    if (e.key === 'Shift') shiftHeld = false;
+  }
+  onMount(() => {
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  });
+
+  // Dependency drawing state
+  let drawingDependency = $state(false);
+  let depLineStart = $state<{ x: number; y: number } | null>(null);
+  let depLineEnd = $state<{ x: number; y: number } | null>(null);
+
+  function hasCircularDependency(sourceId: string, targetId: string): boolean {
+    // Check if sourceId already transitively depends on targetId.
+    // If so, making targetId depend on sourceId would create a cycle.
+    const visited = new Set<string>();
+    function walk(id: string): boolean {
+      if (id === targetId) return true;
+      if (visited.has(id)) return false;
+      visited.add(id);
+      const depItem = allItems.find((i) => i.id === id);
+      if (!depItem?.dependencies) return false;
+      return depItem.dependencies.some((depId) => walk(depId));
+    }
+    return walk(sourceId);
+  }
+
+  function getContainerOffsets() {
+    const container = document.querySelector('.roadmap');
+    if (!container) return null;
+    const containerRect = container.getBoundingClientRect();
+    return {
+      x: containerRect.left - container.scrollLeft,
+      y: containerRect.top - container.scrollTop,
+    };
+  }
+
+  function startDepDraw(e: MouseEvent) {
+    const offsets = getContainerOffsets();
+    if (!offsets) return;
+
+    const barEl = document.querySelector(`[data-item-id="${item.id}"]`);
+    if (!barEl) return;
+    const barRect = barEl.getBoundingClientRect();
+
+    depLineStart = {
+      x: barRect.right - offsets.x,
+      y: barRect.top - offsets.y + barRect.height / 2,
+    };
+    depLineEnd = {
+      x: e.clientX - offsets.x,
+      y: e.clientY - offsets.y,
+    };
+    drawingDependency = true;
+
+    document.addEventListener('mousemove', handleDepDraw);
+    document.addEventListener('mouseup', stopDepDraw);
+
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function handleDepDraw(e: MouseEvent) {
+    const offsets = getContainerOffsets();
+    if (!offsets) return;
+    depLineEnd = {
+      x: e.clientX - offsets.x,
+      y: e.clientY - offsets.y,
+    };
+  }
+
+  function stopDepDraw(e: MouseEvent) {
+    document.removeEventListener('mousemove', handleDepDraw);
+    document.removeEventListener('mouseup', stopDepDraw);
+
+    // Find drop target
+    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    const targetBar = elements.find((el) => el.hasAttribute('data-item-id'));
+    if (targetBar) {
+      const targetId = targetBar.getAttribute('data-item-id')!;
+      if (targetId !== item.id) {
+        const targetItem = allItems.find((i) => i.id === targetId);
+        if (targetItem) {
+          const alreadyDependent =
+            targetItem.dependencies && targetItem.dependencies.includes(item.id);
+          const targetStartsBeforeEnd =
+            PIs.indexOf(targetItem.startPi) < PIs.indexOf(item.endPi);
+          if (
+            !alreadyDependent &&
+            !hasCircularDependency(item.id, targetId) &&
+            !targetStartsBeforeEnd
+          ) {
+            if (!targetItem.dependencies) targetItem.dependencies = [];
+            targetItem.dependencies.push(item.id);
+            updateRelated(targetItem);
+            persistChanges?.(targetItem);
+          }
+        }
+      }
+    }
+
+    drawingDependency = false;
+    depLineStart = null;
+    depLineEnd = null;
   }
 
   // Drag state
@@ -121,7 +241,7 @@
         item.startPi = PIs[newStartIdx];
         item.endPi = PIs[newEndIdx];
         updateRelated(item);
-        onChange && onChange();
+        persistChanges?.(item);
       }
     } else if (dragMode === 'resize-start') {
       // Resize from the start
@@ -132,7 +252,7 @@
       if (item.startPi !== PIs[newStartIdx]) {
         item.startPi = PIs[newStartIdx];
         updateRelated(item);
-        onChange && onChange();
+        persistChanges?.(item);
       }
     } else if (dragMode === 'resize-end') {
       // Resize from the end
@@ -143,8 +263,7 @@
       if (item.endPi !== PIs[newEndIdx]) {
         item.endPi = PIs[newEndIdx];
         updateRelated(item);
-
-        onChange && onChange();
+        persistChanges?.(item);
       }
     }
   }
@@ -181,12 +300,46 @@
   </div>
   <div
     class="resize-handle resize-handle-end"
-    onmousedown={(e) => startDrag(e, item.id, 'resize-end')}
+    class:shift-held={shiftHeld && editable}
+    onmousedown={(e) => {
+      if (e.shiftKey && editable) {
+        startDepDraw(e);
+      } else {
+        startDrag(e, item.id, 'resize-end');
+      }
+    }}
     role="button"
     tabindex="0"
     aria-label="Resize end"
   ></div>
 </div>
+
+{#if drawingDependency && depLineStart && depLineEnd}
+  <svg class="dep-draw-overlay">
+    <defs>
+      <marker
+        id="dep-draw-arrow"
+        markerWidth="6"
+        markerHeight="6"
+        refX="6"
+        refY="3"
+        orient="auto"
+      >
+        <path d="M 0 0.5 L 6 3 L 0 5.5 z" fill="#000" />
+      </marker>
+    </defs>
+    <line
+      x1={depLineStart.x}
+      y1={depLineStart.y}
+      x2={depLineEnd.x}
+      y2={depLineEnd.y}
+      stroke="#000"
+      stroke-width="1.5"
+      stroke-dasharray="6 3"
+      marker-end="url(#dep-draw-arrow)"
+    />
+  </svg>
+{/if}
 
 <style>
   .timeline-bar {
@@ -271,5 +424,22 @@
     background: linear-gradient(to left, rgba(255, 255, 255, 0.3), transparent);
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
+  }
+
+  .resize-handle-end.shift-held {
+    cursor: crosshair;
+    opacity: 1;
+    background: linear-gradient(to left, rgba(102, 126, 234, 0.5), transparent);
+  }
+
+  .dep-draw-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 55;
+    overflow: visible;
   }
 </style>
