@@ -19,7 +19,6 @@
   let isSelected = $state(false);
 
   const handleKeypress = (e: KeyboardEvent) => {
-    console.log('handlekeypress', e.key);
     if (e.key === 'Delete') {
       if (confirm('Are you sure you wish to delete this dependency?')) {
         let updated = $state.snapshot(item);
