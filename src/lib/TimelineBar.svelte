@@ -315,6 +315,7 @@
 </div>
 
 {#if drawingDependency && depLineStart && depLineEnd}
+  {@const midX = depLineStart.x + (depLineEnd.x - depLineStart.x) / 1.5}
   <svg class="dep-draw-overlay">
     <defs>
       <marker
@@ -328,14 +329,15 @@
         <path d="M 0 0.5 L 6 3 L 0 5.5 z" fill="#000" />
       </marker>
     </defs>
-    <line
-      x1={depLineStart.x}
-      y1={depLineStart.y}
-      x2={depLineEnd.x}
-      y2={depLineEnd.y}
+    <path
+      d={`M ${depLineStart.x} ${depLineStart.y}
+          L ${midX} ${depLineStart.y}
+          L ${midX} ${depLineEnd.y}
+          L ${depLineEnd.x} ${depLineEnd.y}`}
       stroke="#000"
       stroke-width="1.5"
       stroke-dasharray="6 3"
+      fill="none"
       marker-end="url(#dep-draw-arrow)"
     />
   </svg>
