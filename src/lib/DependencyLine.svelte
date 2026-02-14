@@ -92,6 +92,8 @@
 
 {#if line}
   {@const midX = line.x1 + (line.x2 - line.x1) * (1 / 3)}
+  {@const title = `"${item.title}" depends on "${dependent.title}"
+  (click to select, press Delete to remove)`}
   <svg class="line-overlay" class:selected={isSelected}>
     <defs>
       <marker id="arrow-start" markerWidth="10" markerHeight="10" refX="0" refY="5" orient="0">
@@ -119,10 +121,7 @@
         fill="none"
         style="pointer-events: stroke;"
       >
-        <title
-          >"{item.title}" depends on "{dependent.title}" (click to select, press Delete to
-          remove)</title
-        >
+        <title>{title}</title>
       </path>
       <!-- Visible line -->
       <path
