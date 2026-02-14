@@ -9,8 +9,6 @@
     item: RoadmapItem;
     rowNum: number;
     persistChanges?: Function;
-    // onChange?: Function;
-    // onDependencyCreated?: (targetItem: RoadmapItem) => void;
     editable?: boolean;
   }
   let {
@@ -18,8 +16,6 @@
     allItems = $bindable(),
     item = $bindable(),
     rowNum,
-    // onChange,
-    // onDependencyCreated,
     persistChanges,
     editable = true,
   }: Props = $props();

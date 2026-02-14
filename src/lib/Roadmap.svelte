@@ -78,6 +78,7 @@
   async function updateSpreadsheet(item: RoadmapItem): Promise<boolean> {
     console.log('Updating item in spreadsheet:', $state.snapshot(item));
     try {
+      items = items.map((i) => (i.id == item.id ? item : i));
       await window.google.script.run
         .withSuccessHandler((response: boolean) => {
           console.log(`Spreadsheet ${response ? 'successfully updated' : 'failed to update'}`);
@@ -293,7 +294,10 @@
   {/each}
 
   <!-- Dependency Lines -->
-  <DependencyLines items={items.filter((item) => filteredItemIds.indexOf(item.id) >= 0)} />
+  <DependencyLines
+    items={items.filter((item) => filteredItemIds.indexOf(item.id) >= 0)}
+    {updateSpreadsheet}
+  />
 </div>
 
 <style>

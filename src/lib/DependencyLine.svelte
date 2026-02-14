@@ -1,7 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { type RoadmapItem } from '../global';
-  let { item, dependent } = $props();
+
+  interface Props {
+    item: RoadmapItem;
+    dependent: RoadmapItem;
+    persistChanges?: Function;
+  }
+  let { item, dependent, persistChanges }: Props = $props();
+
   interface Line {
     x1: number;
     y1: number;
@@ -9,6 +16,34 @@
     y2: number;
   }
   let line: Line | undefined = $state();
+  let isSelected = $state(false);
+
+  const handleKeypress = (e: KeyboardEvent) => {
+    console.log('handlekeypress', e.key);
+    if (e.key === 'Delete') {
+      if (confirm('Are you sure you wish to delete this dependency?')) {
+        let updated = $state.snapshot(item);
+        updated.dependencies = item.dependencies?.filter((id) => id != dependent.id);
+        persistChanges?.(updated);
+      }
+    }
+  };
+
+  const handleClick = (node: HTMLElement) => {
+    function handleClick(event: MouseEvent) {
+      if (node.contains(event.target as Node)) {
+        // toggle selected
+        isSelected = !isSelected;
+      } else {
+        // if clicked outside, set to not selected
+        isSelected = false;
+      }
+    }
+    document.addEventListener('click', handleClick, true);
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+    };
+  };
 
   const updateLine = (from: RoadmapItem, to: RoadmapItem) => {
     const fromEl = document.querySelector(`[data-item-id="${from?.id}`);
@@ -41,7 +76,6 @@
     item.endPi;
     dependent.startPi;
     dependent.endPi;
-
     updateLine(item, dependent);
   });
 
@@ -49,7 +83,6 @@
     const container = document.querySelector('.roadmap');
     window.addEventListener('resize', () => updateLine(item, dependent));
     container?.addEventListener('scroll', () => updateLine(item, dependent));
-
     return () => {
       window.removeEventListener('resize', () => updateLine(item, dependent));
       container?.removeEventListener('scroll', () => updateLine(item, dependent));
@@ -59,7 +92,7 @@
 
 {#if line}
   {@const midX = line.x1 + (line.x2 - line.x1) * (1 / 3)}
-  <svg class="line-overlay">
+  <svg class="line-overlay" class:selected={isSelected}>
     <defs>
       <marker id="arrow-start" markerWidth="10" markerHeight="10" refX="0" refY="5" orient="0">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
@@ -68,7 +101,13 @@
         <circle cx="3" cy="3" r="3" fill="context-stroke" />
       </marker>
     </defs>
-    <g class="dependency-line">
+    <g
+      class="dependency-line"
+      onkeydown={handleKeypress}
+      role="button"
+      tabindex="0"
+      {@attach handleClick}
+    >
       <!-- Invisible wider path for easier hover -->
       <path
         d={`M ${line.x1 - 5} ${line.y1}
@@ -80,7 +119,10 @@
         fill="none"
         style="pointer-events: stroke;"
       >
-        <title>"{item.title}" depends on "{dependent.title}"</title>
+        <title
+          >"{item.title}" depends on "{dependent.title}" (click to select, press Delete to
+          remove)</title
+        >
       </path>
       <!-- Visible line -->
       <path
@@ -110,12 +152,21 @@
     z-index: 50; /* Above timeline bars (10) but below sticky header (100) */
     overflow: visible;
   }
-
+  .line-overlay:hover,
+  .line-overlay.selected {
+    z-index: 51;
+  }
   .dependency-line {
     pointer-events: auto;
   }
-
   .dependency-line:hover .visible-line {
+    stroke: red;
+    filter: drop-shadow(0 0 2px rgb(255, 91, 91));
+  }
+  .dependency-line:active .visible-line {
+    stroke-width: 1.5px;
+  }
+  .line-overlay.selected .dependency-line .visible-line {
     stroke: red;
   }
 </style>
