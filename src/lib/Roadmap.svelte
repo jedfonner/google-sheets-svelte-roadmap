@@ -1,12 +1,16 @@
 <script lang="ts">
   import type { RoadmapItem, RoadmapItemStatus } from '../global';
   import { COLUMN_START_INDEX } from './Config.svelte';
+  import { initConfirmState } from './state.svelte';
+  import Confirm from './Confirm.svelte';
   import DependencyLines from './DependencyLines.svelte';
   import RoadmapRow from './RoadmapRow.svelte';
 
   interface Props {
     items: RoadmapItem[];
   }
+
+  initConfirmState();
 
   let { items = $bindable() }: Props = $props();
 
@@ -298,6 +302,7 @@
     items={items.filter((item) => filteredItemIds.indexOf(item.id) >= 0)}
     {updateSpreadsheet}
   />
+  <Confirm />
 </div>
 
 <style>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ROW_START_INDEX, COLUMN_START_INDEX, STATUS_OPTIONS } from './Config.svelte';
   import type { RoadmapItem, RoadmapItemStatus } from '../global';
+  import { showConfirmDialog } from './state.svelte';
   import Button from './Button.svelte';
   import CollapseToggle from './CollapseToggle.svelte';
   import Textbox from './Textbox.svelte';
@@ -35,6 +36,16 @@
     hasChildren,
     PIs,
   }: Props = $props();
+
+  const deleteItem = () => {
+    showConfirmDialog(
+      `Delete ${item.title}?`,
+      `Are you sure you want to delete ${item.title}?`,
+      (bool: boolean) => {
+        if (bool) removeItem(item);
+      },
+    );
+  };
 </script>
 
 <!-- Title -->
@@ -71,9 +82,7 @@
     </div>
     {#if !hasChildren}
       <div class="button">
-        <Button size="small" onclick={() => { if (confirm(`Delete "${item.title}"?`)) removeItem(item); }} title="Delete" style="negative"
-          >X</Button
-        >
+        <Button size="small" onclick={deleteItem} title="Delete" style="negative">X</Button>
       </div>
     {/if}
   </div>
@@ -93,9 +102,7 @@
     {/if}
     {#if !hasChildren}
       <div class="button">
-        <Button size="small" onclick={() => { if (confirm(`Delete "${item.title}"?`)) removeItem(item); }} title="Delete" style="negative"
-          >X</Button
-        >
+        <Button size="small" onclick={deleteItem} title="Delete" style="negative">X</Button>
       </div>
     {/if}
   </div>

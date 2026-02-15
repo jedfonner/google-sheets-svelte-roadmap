@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { type RoadmapItem } from '../global';
+  import { showConfirmDialog } from './state.svelte';
 
   interface Props {
     item: RoadmapItem;
@@ -20,11 +21,17 @@
 
   const handleKeypress = (e: KeyboardEvent) => {
     if (e.key === 'Delete') {
-      if (confirm('Are you sure you wish to delete this dependency?')) {
-        let updated = $state.snapshot(item);
-        updated.dependencies = item.dependencies?.filter((id) => id != dependent.id);
-        persistChanges?.(updated);
-      }
+      showConfirmDialog(
+        'Delete this dependency?',
+        `Are you sure you want to delete the dependency between "${item.title}" and "${dependent.title}"?`,
+        (bool: boolean) => {
+          if (bool) {
+            let updated = $state.snapshot(item);
+            updated.dependencies = item.dependencies?.filter((id) => id != dependent.id);
+            persistChanges?.(updated);
+          }
+        },
+      );
     }
   };
 
