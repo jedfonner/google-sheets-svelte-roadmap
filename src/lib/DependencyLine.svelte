@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { type RoadmapItem } from '../global';
-  import { showConfirmDialog } from './state.svelte';
+  import { updateSpreadsheet } from './RoadmapProvider.svelte';
+  import { showConfirmDialog } from './ConfirmProvider.svelte';
 
   interface Props {
     item: RoadmapItem;
     dependent: RoadmapItem;
-    persistChanges?: Function;
   }
-  let { item, dependent, persistChanges }: Props = $props();
+  let { item, dependent }: Props = $props();
 
   interface Line {
     x1: number;
@@ -28,7 +28,7 @@
           if (bool) {
             let updated = $state.snapshot(item);
             updated.dependencies = item.dependencies?.filter((id) => id != dependent.id);
-            persistChanges?.(updated);
+            updateSpreadsheet(updated);
           }
         },
       );

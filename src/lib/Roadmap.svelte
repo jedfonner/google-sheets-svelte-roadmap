@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { RoadmapItem, RoadmapItemStatus } from '../global';
   import { COLUMN_START_INDEX } from './Config.svelte';
-  import { initConfirmState } from './state.svelte';
+  import { getRoadmapState } from './RoadmapProvider.svelte';
   import Confirm from './Confirm.svelte';
   import DependencyLines from './DependencyLines.svelte';
   import RoadmapRow from './RoadmapRow.svelte';
@@ -10,26 +10,13 @@
     items: RoadmapItem[];
   }
 
-  initConfirmState();
+  let roadmap = getRoadmapState();
 
-  let { items = $bindable() }: Props = $props();
-
-  let owners = $derived(getAllOwners(items));
-
-  let PIs = $derived.by(() => {
-    // Extract unique PIs from items
-    const piSet = new Set<string>();
-    items.forEach((item) => {
-      if (item.startPi) piSet.add(item.startPi);
-      if (item.endPi) piSet.add(item.endPi);
-    });
-    // Sort PIs
-    return Array.from(piSet).sort();
-  });
+  let owners = $derived(getAllOwners(roadmap.items));
 
   let idLevelMap = $derived.by(() => {
     const map = new Map<string, number>();
-    items.forEach((item) => {
+    roadmap.items.forEach((item) => {
       if (!item.parentId) {
         map.set(item.id, 0);
       } else if (map.has(item.parentId)) {
@@ -40,7 +27,6 @@
 
     return map;
   });
-  // $inspect('items', items);
 
   let filter = $state({
     title: '',
@@ -51,7 +37,7 @@
   let hiddenItems = $state([] as string[]);
 
   let filteredItemIds = $derived.by(() => {
-    const filteredItems = items.filter((item) => {
+    const filteredItems = roadmap.items.filter((item) => {
       const isCollapsed = item.parentId && hiddenItems.includes(item.parentId);
       const matchesTitle =
         filter.title === '' || item.title.toLowerCase().includes(filter.title.toLowerCase());
@@ -72,94 +58,11 @@
       hiddenItems = hiddenItems.filter((id) => id !== itemId);
     }
 
-    items.forEach((item) => {
+    roadmap.items.forEach((item) => {
       if (item.parentId === itemId) {
         toggleVisibility(item.id, isVisible);
       }
     });
-  }
-
-  async function updateSpreadsheet(item: RoadmapItem): Promise<boolean> {
-    console.log('Updating item in spreadsheet:', $state.snapshot(item));
-    try {
-      items = items.map((i) => (i.id == item.id ? item : i));
-      await window.google.script.run
-        .withSuccessHandler((response: boolean) => {
-          console.log(`Spreadsheet ${response ? 'successfully updated' : 'failed to update'}`);
-          return response;
-        })
-        .withFailureHandler((error: any) => {
-          console.error('Error updating spreadsheet:', error);
-        })
-        .updateSpreadsheet(item);
-    } catch (error) {
-      console.error('Error invoking server function:', error);
-    }
-    return false;
-  }
-
-  async function addChildItem(parentItem: RoadmapItem): Promise<void> {
-    const newItem: RoadmapItem = {
-      id: crypto.randomUUID(),
-      parentId: parentItem.id,
-      title: 'New Item',
-      owner: 'TBD',
-      status: 'planned',
-      startPi: parentItem.startPi || PIs[0],
-      endPi: parentItem.endPi || PIs[1],
-    };
-    const index = items.findIndex((item) => item.id === parentItem.id);
-    items.splice(index + 1, 0, newItem);
-
-    // @ts-ignore
-    if (!globalThis.inGAS) {
-      console.warn('Not running in GAS environment. Skipping update.');
-      return;
-    }
-    try {
-      console.log('Adding new item to spreadsheet:', newItem);
-      // @ts-ignore
-      await google.script.run
-        .withSuccessHandler((response: boolean) => {
-          console.log(`Spreadsheet ${response ? 'successfully updated' : 'failed to update'}`);
-          return response;
-        })
-        .withFailureHandler((error: any) => {
-          console.error('Error updating spreadsheet:', error);
-        })
-        .addRoadmapItem(newItem, index + 1);
-    } catch (error) {
-      console.error('Error invoking server function:', error);
-    }
-  }
-
-  async function removeItem(itemToRemove: RoadmapItem): Promise<void> {
-    const index = items.findIndex((item) => item.id === itemToRemove.id);
-    if (index !== -1) {
-      items.splice(index, 1);
-      // @ts-ignore
-      if (!globalThis.inGAS) {
-        console.warn('Not running in GAS environment. Skipping update.');
-        return;
-      }
-      try {
-        console.log('Removing item to spreadsheet:', index);
-        // @ts-ignore
-        await google.script.run
-          .withSuccessHandler((response: boolean) => {
-            console.log(
-              `Spreadsheet ${response ? 'successfully updated' : 'failed to update'}`,
-            );
-            return response;
-          })
-          .withFailureHandler((error: any) => {
-            console.error('Error updating spreadsheet:', error);
-          })
-          .removeRoadmapItem(index);
-      } catch (error) {
-        console.error('Error invoking server function:', error);
-      }
-    }
   }
 
   function getAllOwners(items: RoadmapItem[]): string[] {
@@ -168,30 +71,26 @@
     return Array.from(ownersSet);
   }
 
-  function hasChildren(item: RoadmapItem): boolean {
-    return items.some((i) => i.parentId === item.id);
-  }
-
   function computeDurationFromChildren(
     item: RoadmapItem,
   ): { startPi: string; endPi: string } | null {
-    const children = items.filter((i) => i.parentId === item.id);
+    const children = roadmap.items.filter((i) => i.parentId === item.id);
     if (children.length === 0) {
       return null;
     }
-    const grandChildren = items.filter((item) =>
+    const grandChildren = roadmap.items.filter((item) =>
       children.some((child) => child.id === item.parentId),
     );
     const itemsToCheck = grandChildren.length > 0 ? grandChildren : children;
 
-    let startIndex = PIs.length - 1;
+    let startIndex = roadmap.PIs.length - 1;
     let endIndex = 0;
     itemsToCheck.forEach((child) => {
       if (!child.startPi || !child.endPi) {
         return;
       }
-      const childStartIndex = PIs.indexOf(child.startPi);
-      const childEndIndex = PIs.indexOf(child.endPi);
+      const childStartIndex = roadmap.PIs.indexOf(child.startPi);
+      const childEndIndex = roadmap.PIs.indexOf(child.endPi);
       if (childStartIndex !== -1 && childStartIndex < startIndex) {
         startIndex = childStartIndex;
       }
@@ -200,14 +99,14 @@
       }
     });
     return {
-      startPi: PIs[startIndex],
-      endPi: PIs[endIndex],
+      startPi: roadmap.PIs[startIndex],
+      endPi: roadmap.PIs[endIndex],
     };
   }
 
   function computeStatusFromChildren(item: RoadmapItem): RoadmapItemStatus {
-    const children = items.filter((i) => i.parentId === item.id);
-    const grandChildren = items.filter((item) =>
+    const children = roadmap.items.filter((i) => i.parentId === item.id);
+    const grandChildren = roadmap.items.filter((item) =>
       children.some((child) => child.id === item.parentId),
     );
     const itemsToCheck = grandChildren.length > 0 ? grandChildren : children;
@@ -229,12 +128,12 @@
   }
 </script>
 
-<div class="roadmap" style="--num-PIs: {PIs.length};">
+<div class="roadmap" style="--num-PIs: {roadmap.PIs.length};">
   <!-- Header Row -->
   <div class="header" style="grid-row: 1; grid-column: 1;">Title</div>
   <div class="header" style="grid-row: 1; grid-column: 2;">Owner</div>
   <div class="header" style="grid-row: 1; grid-column: 3;">Status</div>
-  {#each PIs as quarter, i}
+  {#each roadmap.PIs as quarter, i}
     <div class="header pi" style="grid-row: 1; grid-column: {i + COLUMN_START_INDEX};">
       {quarter}
     </div>
@@ -265,43 +164,37 @@
       <option value="completed">Completed</option>
     </select>
   </div>
-  {#each PIs as _, i}
+  {#each roadmap.PIs as _, i}
     <div class="filter" style="grid-row: 2; grid-column: {i + COLUMN_START_INDEX};">
       &nbsp;
     </div>
   {/each}
 
   <!-- Background cells -->
-
   {#each filteredItemIds as id, rowNum}
-    {@const item = items.filter((item) => item.id == id)?.[0]}
-    {@const itemIndex = items.indexOf(item)}
+    {@const item = roadmap.items.filter((item) => item.id == id)?.[0]}
+    {@const itemIndex = roadmap.items.indexOf(item)}
     {@const level = idLevelMap.get(item.id) ?? 0}
     {@const computedStatus = level <= 1 ? computeStatusFromChildren(item) : item.status}
     {@const computedDuration = level <= 1 ? computeDurationFromChildren(item) : null}
-    {@const hasChildren = items.some((i) => i.parentId === item.id)}
+    {@const hasChildren = roadmap.items.some((i) => i.parentId === item.id)}
     <!-- To allow updating, need to bind to the original items state object-->
     <RoadmapRow
-      bind:item={items[itemIndex]}
-      bind:allItems={items}
+      bind:item={roadmap.items[itemIndex]}
       {rowNum}
       {level}
       {computedStatus}
       {computedDuration}
       {hasChildren}
-      {PIs}
-      {updateSpreadsheet}
-      {addChildItem}
-      {removeItem}
       {toggleVisibility}
     />
   {/each}
 
   <!-- Dependency Lines -->
   <DependencyLines
-    items={items.filter((item) => filteredItemIds.indexOf(item.id) >= 0)}
-    {updateSpreadsheet}
+    items={roadmap.items.filter((item) => filteredItemIds.indexOf(item.id) >= 0)}
   />
+  <!-- Confirm Dialog -->
   <Confirm />
 </div>
 

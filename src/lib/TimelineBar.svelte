@@ -2,41 +2,37 @@
   import { onMount } from 'svelte';
   import type { RoadmapItem } from '../global';
   import { ROW_START_INDEX, COLUMN_START_INDEX } from './Config.svelte';
+  import { getRoadmapState, updateSpreadsheet } from './RoadmapProvider.svelte';
 
   interface Props {
-    PIs: string[];
-    allItems: RoadmapItem[];
     item: RoadmapItem;
     rowNum: number;
-    persistChanges?: Function;
     editable?: boolean;
   }
-  let {
-    PIs,
-    allItems = $bindable(),
-    item = $bindable(),
-    rowNum,
-    persistChanges,
-    editable = true,
-  }: Props = $props();
+  let { item = $bindable(), rowNum, editable = true }: Props = $props();
+
+  let roadmap = getRoadmapState();
 
   // Function to get grid column span for a timeline bar
   function getColumnSpan(startPi: string, endPi: string): { start: number; end: number } {
-    const startIndex = PIs.indexOf(startPi);
-    const endIndex = PIs.indexOf(endPi);
+    const startIndex = roadmap.PIs.indexOf(startPi);
+    const endIndex = roadmap.PIs.indexOf(endPi);
 
     return {
       start: startIndex >= 0 ? startIndex + COLUMN_START_INDEX : COLUMN_START_INDEX, // +3 to account for title, owner columns
-      end: endIndex >= 0 ? endIndex + COLUMN_START_INDEX + 1 : COLUMN_START_INDEX + PIs.length, // +4 to span to end of that column
+      end:
+        endIndex >= 0
+          ? endIndex + COLUMN_START_INDEX + 1
+          : COLUMN_START_INDEX + roadmap.PIs.length, // +4 to span to end of that column
     };
   }
   function updateRelated(item: RoadmapItem) {
     // dependencies = items on which the specified item depends (aka in the items dependencies list)
-    const dependencies = allItems.filter(
+    const dependencies = roadmap.items.filter(
       (allItem) => item.dependencies && item.dependencies.indexOf(allItem.id) >= 0,
     );
     // dependees = items that have the specified item in their dependencies list
-    const dependees = allItems.filter(
+    const dependees = roadmap.items.filter(
       (allItem) => allItem.dependencies && allItem.dependencies?.indexOf(item.id) >= 0,
     );
 
@@ -44,11 +40,11 @@
     // if so, don't allow the item's start to move any further earlier
     dependencies.forEach((dependent) => {
       console.log('Dependent', dependent.title, dependent.startPi, dependent.endPi);
-      if (PIs.indexOf(dependent.endPi) >= PIs.indexOf(item.startPi)) {
+      if (roadmap.PIs.indexOf(dependent.endPi) >= roadmap.PIs.indexOf(item.startPi)) {
         console.log('Fixing dependent problem');
-        const duration = PIs.indexOf(item.endPi) - PIs.indexOf(item.startPi);
-        item.startPi = PIs[PIs.indexOf(dependent.endPi) + 1];
-        item.endPi = PIs[PIs.indexOf(item.startPi) + duration];
+        const duration = roadmap.PIs.indexOf(item.endPi) - roadmap.PIs.indexOf(item.startPi);
+        item.startPi = roadmap.PIs[roadmap.PIs.indexOf(dependent.endPi) + 1];
+        item.endPi = roadmap.PIs[roadmap.PIs.indexOf(item.startPi) + duration];
       }
     });
     // check if any dependees end after the item starts
@@ -57,9 +53,10 @@
       console.log('Dependee', dependee.title, dependee.startPi, dependee.endPi);
       if (item.endPi >= dependee.startPi) {
         console.log('Fixing Dependee problem');
-        const duration = PIs.indexOf(dependee.endPi) - PIs.indexOf(dependee.startPi);
-        dependee.startPi = PIs[PIs.indexOf(item.endPi) + 1];
-        dependee.endPi = PIs[PIs.indexOf(dependee.startPi) + duration];
+        const duration =
+          roadmap.PIs.indexOf(dependee.endPi) - roadmap.PIs.indexOf(dependee.startPi);
+        dependee.startPi = roadmap.PIs[roadmap.PIs.indexOf(item.endPi) + 1];
+        dependee.endPi = roadmap.PIs[roadmap.PIs.indexOf(dependee.startPi) + duration];
       }
     });
   }
@@ -94,7 +91,7 @@
       if (id === targetId) return true;
       if (visited.has(id)) return false;
       visited.add(id);
-      const depItem = allItems.find((i) => i.id === id);
+      const depItem = roadmap.items.find((i) => i.id === id);
       if (!depItem?.dependencies) return false;
       return depItem.dependencies.some((depId) => walk(depId));
     }
@@ -155,12 +152,12 @@
     if (targetBar) {
       const targetId = targetBar.getAttribute('data-item-id')!;
       if (targetId !== item.id) {
-        const targetItem = allItems.find((i) => i.id === targetId);
+        const targetItem = roadmap.items.find((i) => i.id === targetId);
         if (targetItem) {
           const alreadyDependent =
             targetItem.dependencies && targetItem.dependencies.includes(item.id);
           const targetStartsBeforeEnd =
-            PIs.indexOf(targetItem.startPi) < PIs.indexOf(item.endPi);
+            roadmap.PIs.indexOf(targetItem.startPi) < roadmap.PIs.indexOf(item.endPi);
           if (
             !alreadyDependent &&
             !hasCircularDependency(item.id, targetId) &&
@@ -169,7 +166,7 @@
             if (!targetItem.dependencies) targetItem.dependencies = [];
             targetItem.dependencies.push(item.id);
             updateRelated(targetItem);
-            persistChanges?.(targetItem);
+            updateSpreadsheet(targetItem);
           }
         }
       }
@@ -197,8 +194,8 @@
     draggedItem = itemId;
     dragMode = mode;
     dragStartX = e.clientX;
-    initialStartPiIndex = PIs.indexOf(item.startPi);
-    initialEndPiIndex = PIs.indexOf(item.endPi);
+    initialStartPiIndex = roadmap.PIs.indexOf(item.startPi);
+    initialEndPiIndex = roadmap.PIs.indexOf(item.endPi);
 
     document.addEventListener('mousemove', handleDrag);
     document.addEventListener('mouseup', stopDrag);
@@ -228,16 +225,16 @@
       const duration = initialEndPiIndex - initialStartPiIndex;
       const newStartIdx = Math.max(
         0,
-        Math.min(PIs.length - duration - 1, initialStartPiIndex + columnsShifted),
+        Math.min(roadmap.PIs.length - duration - 1, initialStartPiIndex + columnsShifted),
       );
       const newEndIdx = newStartIdx + duration;
 
       // Update the item's PIs
-      if (item.startPi !== PIs[newStartIdx] || item.endPi !== PIs[newEndIdx]) {
-        item.startPi = PIs[newStartIdx];
-        item.endPi = PIs[newEndIdx];
+      if (item.startPi !== roadmap.PIs[newStartIdx] || item.endPi !== roadmap.PIs[newEndIdx]) {
+        item.startPi = roadmap.PIs[newStartIdx];
+        item.endPi = roadmap.PIs[newEndIdx];
         updateRelated(item);
-        persistChanges?.(item);
+        updateSpreadsheet(item);
       }
     } else if (dragMode === 'resize-start') {
       // Resize from the start
@@ -245,21 +242,21 @@
         0,
         Math.min(initialEndPiIndex, initialStartPiIndex + columnsShifted),
       );
-      if (item.startPi !== PIs[newStartIdx]) {
-        item.startPi = PIs[newStartIdx];
+      if (item.startPi !== roadmap.PIs[newStartIdx]) {
+        item.startPi = roadmap.PIs[newStartIdx];
         updateRelated(item);
-        persistChanges?.(item);
+        updateSpreadsheet(item);
       }
     } else if (dragMode === 'resize-end') {
       // Resize from the end
       const newEndIdx = Math.max(
         initialStartPiIndex,
-        Math.min(PIs.length - 1, initialEndPiIndex + columnsShifted),
+        Math.min(roadmap.PIs.length - 1, initialEndPiIndex + columnsShifted),
       );
-      if (item.endPi !== PIs[newEndIdx]) {
-        item.endPi = PIs[newEndIdx];
+      if (item.endPi !== roadmap.PIs[newEndIdx]) {
+        item.endPi = roadmap.PIs[newEndIdx];
         updateRelated(item);
-        persistChanges?.(item);
+        updateSpreadsheet(item);
       }
     }
   }

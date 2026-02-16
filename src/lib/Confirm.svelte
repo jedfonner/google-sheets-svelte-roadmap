@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { getConfirmState } from './state.svelte';
+  import { getConfirmState } from './ConfirmProvider.svelte';
   import { onMount } from 'svelte';
+
   const confirmState = getConfirmState();
-  $inspect('Confirm State', confirmState);
 
   let dialog: HTMLDialogElement | undefined = $state();
 

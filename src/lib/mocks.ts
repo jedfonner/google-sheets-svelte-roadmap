@@ -17,7 +17,16 @@ export const mocks: ServerFunctions = {
     console.log('[MOCK] Server function updateSpreadsheet executed');
     // TODO: update roadmap-data.json
     return true;
-
+  },
+  addRoadmapItem: async (item: RoadmapItem) => {
+    console.log('[MOCK] Server function addRoadmapItem executed');
+    // TODO: update roadmap-data.json
+    return true;
+  },
+  removeRoadmapItem: async (index: number) => {
+    console.log('[MOCK] Server function removeRoadmapItem executed');
+    // TODO: update roadmap-data.json
+    return true;
   }
   // You can add more mock server functions here as needed
 }

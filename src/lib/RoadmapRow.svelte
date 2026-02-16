@@ -1,7 +1,14 @@
 <script lang="ts">
   import { ROW_START_INDEX, COLUMN_START_INDEX, STATUS_OPTIONS } from './Config.svelte';
   import type { RoadmapItem, RoadmapItemStatus } from '../global';
-  import { showConfirmDialog } from './state.svelte';
+  import {
+    getRoadmapState,
+    removeItem,
+    addChildItem,
+    updateSpreadsheet,
+  } from './RoadmapProvider.svelte';
+  import { showConfirmDialog } from './ConfirmProvider.svelte';
+
   import Button from './Button.svelte';
   import CollapseToggle from './CollapseToggle.svelte';
   import Textbox from './Textbox.svelte';
@@ -10,32 +17,24 @@
 
   interface Props {
     item: RoadmapItem;
-    allItems: RoadmapItem[];
-    updateSpreadsheet: (item: RoadmapItem) => Promise<boolean>;
-    addChildItem: (parentItem: RoadmapItem) => void;
-    removeItem: (item: RoadmapItem) => void;
     toggleVisibility?: (itemId: string, isVisible: boolean) => void;
     rowNum: number;
     level: number;
     computedStatus: RoadmapItemStatus;
     computedDuration: { startPi: string; endPi: string } | null;
     hasChildren: boolean;
-    PIs: string[];
   }
   let {
     item = $bindable(),
-    allItems = $bindable(),
-    updateSpreadsheet,
-    addChildItem,
-    removeItem,
     toggleVisibility,
     rowNum,
     level,
     computedStatus,
     computedDuration,
     hasChildren,
-    PIs,
   }: Props = $props();
+
+  let roadmap = getRoadmapState();
 
   const deleteItem = () => {
     showConfirmDialog(
@@ -128,7 +127,7 @@
   {/if}
 </div>
 <!-- Blank PI cells -->
-{#each PIs as _, i}
+{#each roadmap.PIs as _, i}
   <div
     class="cell pi-cell level-{level}"
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: {i + COLUMN_START_INDEX};"
@@ -142,10 +141,10 @@
     startPi: computedDuration ? computedDuration.startPi : item.startPi,
     endPi: computedDuration ? computedDuration.endPi : item.endPi,
   }}
-  <TimelineBar {PIs} {allItems} item={headerItem} {rowNum} editable={false} />
+  <TimelineBar item={headerItem} {rowNum} editable={false} />
 {:else}
   <!-- ignore warnings about binding to non-reactive property-->
-  <TimelineBar {PIs} {allItems} bind:item {rowNum} persistChanges={updateSpreadsheet} />
+  <TimelineBar bind:item {rowNum} />
 {/if}
 
 <style>

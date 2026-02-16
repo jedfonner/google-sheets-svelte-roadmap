@@ -2,33 +2,29 @@
   import type { RoadmapItem } from './global';
   import Roadmap from './lib/Roadmap.svelte';
   import { onMount } from 'svelte';
+  import {
+    getRoadmapState,
+    initRoadmapState,
+    loadDataFromSpreadsheet,
+    type RoadmapState,
+  } from './lib/RoadmapProvider.svelte';
+  import { initConfirmState } from './lib/ConfirmProvider.svelte';
 
   // @ts-ignore
   const version = __APP_VERSION__;
 
-  let status = $state('loading');
-  let items: RoadmapItem[] = $state([]);
+  // initialize our $state variables stored in Context
+  initConfirmState();
+  initRoadmapState();
+
+  let roadmap: RoadmapState = getRoadmapState();
 
   let title = $state('');
 
-  onMount(() => {
+  onMount(async () => {
     title = window.document.title;
-    getDataFromServer();
+    await loadDataFromSpreadsheet();
   });
-
-  const getDataFromServer = async () => {
-    await window.google.script.run
-      .withSuccessHandler((response: any) => {
-        console.log('Loaded data from Spreadsheet', response);
-        status = 'loaded';
-        items = structuredClone(response) as RoadmapItem[];
-      })
-      .withFailureHandler((error: any) => {
-        console.error('Error invoking server function:', error);
-        alert('Failed to invoke server function.');
-      })
-      .getRoadmapData();
-  };
 </script>
 
 <main>
@@ -36,13 +32,14 @@
     <h1>{title ? title : 'Roadmap'}</h1>
     <span class="version">v{version}</span>
   </header>
-  {#if status === 'loading'}
+
+  {#if roadmap.status === 'loading' || roadmap.status === 'idle'}
     <p>Loading...</p>
-  {:else if status === 'error'}
+  {:else if roadmap.status === 'error'}
     <p>Error loading data.</p>
   {:else}
     <div class="roadmap-container">
-      <Roadmap bind:items />
+      <Roadmap />
     </div>
   {/if}
 </main>
