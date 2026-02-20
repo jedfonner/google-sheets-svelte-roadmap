@@ -10,48 +10,9 @@
   }
   let { item, dependent }: Props = $props();
 
-  interface Line {
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-  }
-  let line: Line | undefined = $state();
   let isSelected = $state(false);
 
-  const handleKeypress = (e: KeyboardEvent) => {
-    if (e.key === 'Delete') {
-      showConfirmDialog(
-        'Delete this dependency?',
-        `Are you sure you want to delete the dependency between "${item.title}" and "${dependent.title}"?`,
-        (bool: boolean) => {
-          if (bool) {
-            let updated = $state.snapshot(item);
-            updated.dependencies = item.dependencies?.filter((id) => id != dependent.id);
-            updateSpreadsheet(updated);
-          }
-        },
-      );
-    }
-  };
-
-  const handleClick = (node: HTMLElement) => {
-    function handleClick(event: MouseEvent) {
-      if (node.contains(event.target as Node)) {
-        // toggle selected
-        isSelected = !isSelected;
-      } else {
-        // if clicked outside, set to not selected
-        isSelected = false;
-      }
-    }
-    document.addEventListener('click', handleClick, true);
-    return () => {
-      document.removeEventListener('click', handleClick, true);
-    };
-  };
-
-  const updateLine = (from: RoadmapItem, to: RoadmapItem) => {
+  const updateLine = (from: RoadmapItem, to: RoadmapItem): Line | undefined => {
     const fromEl = document.querySelector(`[data-item-id="${from?.id}`);
     const toEl = document.querySelector(`[data-item-id="${to?.id}`);
     const container = document.querySelector('.roadmap');
@@ -73,31 +34,77 @@
     const x2 = rect2.right - offsetX;
     const y2 = rect2.top - offsetY + rect2.height / 2;
 
-    line = { x1, y1, x2, y2 };
+    return { x1, y1, x2, y2 };
   };
 
-  $effect(() => {
+  interface Line {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }
+
+  let line: Line | undefined = $derived.by(() => {
     // Access reactive properties so Svelte tracks them
     item.startPi;
     item.endPi;
     dependent.startPi;
     dependent.endPi;
-    updateLine(item, dependent);
+    return updateLine(item, dependent);
   });
 
   onMount(() => {
+    line = updateLine(item, dependent);
     const container = document.querySelector('.roadmap');
-    window.addEventListener('resize', () => updateLine(item, dependent));
-    container?.addEventListener('scroll', () => updateLine(item, dependent));
+    window.addEventListener('resize', () => (line = updateLine(item, dependent)));
+    container?.addEventListener('scroll', () => (line = updateLine(item, dependent)));
     return () => {
-      window.removeEventListener('resize', () => updateLine(item, dependent));
-      container?.removeEventListener('scroll', () => updateLine(item, dependent));
+      window.removeEventListener('resize', () => (line = updateLine(item, dependent)));
+      container?.removeEventListener('scroll', () => (line = updateLine(item, dependent)));
     };
   });
+
+  const deleteLine = () => {
+    showConfirmDialog(
+      'Delete this dependency?',
+      `Are you sure you want to delete the dependency between "${item.title}" and "${dependent.title}"?`,
+      (bool: boolean) => {
+        if (bool) {
+          let updated = $state.snapshot(item);
+          updated.dependencies = item.dependencies?.filter((id) => id != dependent.id);
+          updateSpreadsheet(updated);
+        }
+      },
+    );
+  };
+
+  const handleKeypress = (e: KeyboardEvent) => {
+    if (e.key === 'Delete') {
+      deleteLine();
+    }
+  };
+
+  const handleClick = (node: HTMLElement) => {
+    function handleClick(event: MouseEvent) {
+      if ((event.target as Element).closest('[data-delete-btn]')) return;
+      if (node.contains(event.target as Node)) {
+        // toggle selected
+        isSelected = !isSelected;
+      } else {
+        // if clicked outside, set to not selected
+        isSelected = false;
+      }
+    }
+    document.addEventListener('click', handleClick, true);
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+    };
+  };
 </script>
 
 {#if line}
   {@const midX = line.x1 + (line.x2 - line.x1) * (1 / 3)}
+  {@const midY = (line.y1 + line.y2) / 2}
   {@const title = `"${item.title}" depends on "${dependent.title}"
   (click to select, press Delete to remove)`}
   <svg class="line-overlay" class:selected={isSelected}>
@@ -142,6 +149,18 @@
         marker-start="url(#arrow-start)"
         marker-end="url(#circle-end)"
       />
+      {#if isSelected}
+        <foreignObject x={midX - 12} y={midY - 12} width="24" height="24">
+          <button
+            data-delete-btn
+            onclick={deleteLine}
+            class="delete-btn"
+            title="Delete dependency"
+          >
+            <span>×</span>
+          </button>
+        </foreignObject>
+      {/if}
     </g>
   </svg>
 {/if}
@@ -163,6 +182,7 @@
   }
   .dependency-line {
     pointer-events: auto;
+    outline: none;
   }
   .dependency-line:hover .visible-line {
     stroke: red;
@@ -173,5 +193,27 @@
   }
   .line-overlay.selected .dependency-line .visible-line {
     stroke: red;
+  }
+  .delete-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    border: 1px solid red;
+    background-color: silver;
+    color: black;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+  }
+  .delete-btn:hover {
+    font-weight: bold;
+    border: 2px solid red;
+  }
+  .delete-btn:active {
+    transform: scale(0.95);
   }
 </style>
