@@ -5,6 +5,7 @@
   import {
     getRoadmapState,
     initRoadmapState,
+    getSpreadsheetName,
     loadDataFromSpreadsheet,
     type RoadmapState,
   } from './lib/RoadmapProvider.svelte';
@@ -19,17 +20,17 @@
 
   let roadmap: RoadmapState = getRoadmapState();
 
-  let title = $state('');
+  let title = $state('Loading...');
 
   onMount(async () => {
-    title = window.document.title;
+    title = await getSpreadsheetName();
     await loadDataFromSpreadsheet();
   });
 </script>
 
 <main>
   <header>
-    <h1>{title ? title : 'Roadmap'}</h1>
+    <h1>{title}</h1>
     <span class="version">v{version}</span>
   </header>
 

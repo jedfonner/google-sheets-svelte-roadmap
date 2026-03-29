@@ -1,7 +1,12 @@
 import type { ServerFunctions, RoadmapItem } from '../global';
+import { getSpreadsheetName } from './RoadmapProvider.svelte';
 
 // Add your server functions here
 export const mocks: ServerFunctions = {
+  getSpreadsheetName: async () => {
+    console.log('[MOCK] Server function getSpreadsheetName executed');
+    return 'Mock Spreadsheet Name';
+  },
   getRoadmapData: async () => {
     console.log('[MOCK] Server function getRoadmapData executed');
     try {

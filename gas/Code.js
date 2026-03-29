@@ -1,7 +1,6 @@
 function doGet(e) {
   return HtmlService.createTemplateFromFile('Index')
     .evaluate()
-    .setTitle('Svelte Google Apps Script')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -13,6 +12,12 @@ function onEdit() {
   Logger.log('Clearing cache of data');
   const docCache = CacheService.getDocumentCache();
   docCache.remove('roadmapData');
+}
+
+function getSpreadsheetName() {
+  const spreadsheet = SpreadsheetApp.getActive();
+  const name = spreadsheet.getName();
+  return name;
 }
 
 const SHEET_NAME = 'Roadmap';

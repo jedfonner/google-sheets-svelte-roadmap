@@ -17,28 +17,45 @@ export const initRoadmapState = (): RoadmapState => {
   return setContext('roadmapState', roadmapState);
 }
 
-export const loadDataFromSpreadsheet = async (): Promise<RoadmapState> => {
+export const getSpreadsheetName = (): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    window.google.script.run
+      .withSuccessHandler((response: string) => {
+        console.log('Spreadsheet name from server:', response);
+        resolve(response);
+      })
+      .withFailureHandler((error: any) => {
+        console.error('Error invoking server function getSpreadsheetName:', error);
+        reject(error);
+      })
+      .getSpreadsheetName();
+  });
+}
+
+export const loadDataFromSpreadsheet = (): Promise<RoadmapState> => {
   roadmapState.status = 'loading';
-  await window.google.script.run
-    .withSuccessHandler((response: any) => {
-      console.log('Loaded data from Spreadsheet', response);
-      roadmapState.items = structuredClone(response) as RoadmapItem[];
-      // Extract unique PIs from items
-      const piSet = new Set<string>();
-      roadmapState.items.forEach((item) => {
-        if (item.startPi) piSet.add(item.startPi);
-        if (item.endPi) piSet.add(item.endPi);
-      });
-      roadmapState.PIs = Array.from(piSet).sort();
-      roadmapState.status = 'loaded';
-    })
-    .withFailureHandler((error: any) => {
-      roadmapState.status = 'error';
-      console.error('Error invoking server function:', error);
-      alert('Failed to invoke server function.');
-    })
-    .getRoadmapData();
-  return roadmapState;
+  return new Promise((resolve, reject) => {
+    window.google.script.run
+      .withSuccessHandler((response: any) => {
+        console.log('Loaded data from Spreadsheet', response);
+        roadmapState.items = structuredClone(response) as RoadmapItem[];
+        // Extract unique PIs from items
+        const piSet = new Set<string>();
+        roadmapState.items.forEach((item) => {
+          if (item.startPi) piSet.add(item.startPi);
+          if (item.endPi) piSet.add(item.endPi);
+        });
+        roadmapState.PIs = Array.from(piSet).sort();
+        roadmapState.status = 'loaded';
+        resolve(roadmapState);
+      })
+      .withFailureHandler((error: any) => {
+        roadmapState.status = 'error';
+        console.error('Error invoking server function getRoadmapData:', error);
+        reject(error);
+      })
+      .getRoadmapData();
+  });
 }
 
 export const getRoadmapState = (): RoadmapState => {
