@@ -28,6 +28,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>{import.meta.env.DEV ? `[DEV] ${title}` : title}</title>
+</svelte:head>
+
 <main>
   <header>
     <h1>{title}</h1>

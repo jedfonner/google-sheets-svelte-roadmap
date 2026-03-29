@@ -1,6 +1,8 @@
 function doGet(e) {
+  const name = getSpreadsheetName();
   return HtmlService.createTemplateFromFile('Index')
     .evaluate()
+    .setTitle(name)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -12,6 +14,12 @@ function onEdit() {
   Logger.log('Clearing cache of data');
   const docCache = CacheService.getDocumentCache();
   docCache.remove('roadmapData');
+}
+
+function getSpreadsheetName() {
+  const spreadsheet = SpreadsheetApp.getActive();
+  const name = spreadsheet.getName();
+  return name;
 }
 
 function getSpreadsheetName() {
