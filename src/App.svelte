@@ -5,7 +5,7 @@
   import {
     getRoadmapState,
     initRoadmapState,
-    getSpreadsheetName,
+    getSpreadsheetInfo,
     loadDataFromSpreadsheet,
     type RoadmapState,
   } from './lib/RoadmapProvider.svelte';
@@ -21,9 +21,12 @@
   let roadmap: RoadmapState = getRoadmapState();
 
   let title = $state('Loading...');
+  let url = $state('');
 
   onMount(async () => {
-    title = await getSpreadsheetName();
+    const info = await getSpreadsheetInfo();
+    title = info.name;
+    url = info.url;
     await loadDataFromSpreadsheet();
   });
 </script>
@@ -34,7 +37,7 @@
 
 <main>
   <header>
-    <h1>{title}</h1>
+    <h1><a href={url} target="_blank" title="Open Spreadsheet">{title}</a></h1>
     <span class="version">v{version}</span>
   </header>
 
@@ -66,6 +69,16 @@
   h1 {
     flex-shrink: 0;
     margin: 0;
+  }
+  h1 a {
+    text-decoration: none;
+    color: inherit;
+  }
+  h1:hover a {
+    text-decoration: underline;
+  }
+  h1:hover a::after {
+    content: ' ↗';
   }
   p {
     padding: 1rem;

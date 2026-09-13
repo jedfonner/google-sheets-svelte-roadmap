@@ -1,8 +1,8 @@
 function doGet(e) {
-  const name = getSpreadsheetName();
+  const info = getSpreadsheetInfo();
   return HtmlService.createTemplateFromFile('Index')
     .evaluate()
-    .setTitle(name)
+    .setTitle(info.name)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -16,16 +16,11 @@ function onEdit() {
   docCache.remove('roadmapData');
 }
 
-function getSpreadsheetName() {
+function getSpreadsheetInfo() {
   const spreadsheet = SpreadsheetApp.getActive();
   const name = spreadsheet.getName();
-  return name;
-}
-
-function getSpreadsheetName() {
-  const spreadsheet = SpreadsheetApp.getActive();
-  const name = spreadsheet.getName();
-  return name;
+  const url = spreadsheet.getUrl();
+  return { name, url };
 }
 
 const SHEET_NAME = 'Roadmap';

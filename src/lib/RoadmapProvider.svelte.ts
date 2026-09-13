@@ -17,18 +17,18 @@ export const initRoadmapState = (): RoadmapState => {
   return setContext('roadmapState', roadmapState);
 }
 
-export const getSpreadsheetName = (): Promise<string> => {
+export const getSpreadsheetInfo = (): Promise<{ name: string; url: string }> => {
   return new Promise((resolve, reject) => {
     window.google.script.run
-      .withSuccessHandler((response: string) => {
-        console.log('Spreadsheet name from server:', response);
+      .withSuccessHandler((response: { name: string; url: string }) => {
+        console.log('Spreadsheet info from server:', response);
         resolve(response);
       })
       .withFailureHandler((error: any) => {
-        console.error('Error invoking server function getSpreadsheetName:', error);
+        console.error('Error invoking server function getSpreadsheetInfo:', error);
         reject(error);
       })
-      .getSpreadsheetName();
+      .getSpreadsheetInfo();
   });
 }
 
