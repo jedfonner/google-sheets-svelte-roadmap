@@ -25,4 +25,5 @@ export interface RoadmapItem {
   parentId?: string;
   status: RoadmapItemStatus;
   dependencies?: Array<string>;
+  url?: string;
 }

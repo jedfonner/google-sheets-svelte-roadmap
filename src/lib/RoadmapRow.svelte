@@ -55,6 +55,11 @@
   >
     <CollapseToggle itemId={item.id} {toggleVisibility} />
     <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
+    <span class="link">
+      {#if item.url}
+        <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
+      {/if}
+    </span>
     <div class="button">
       <Button
         size="small"
@@ -71,6 +76,11 @@
   >
     <CollapseToggle itemId={item.id} {toggleVisibility} />
     <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
+    <span class="link">
+      {#if item.url}
+        <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
+      {/if}
+    </span>
     <div class="button">
       <Button
         size="small"
@@ -92,6 +102,11 @@
   >
     <span>‣</span>
     <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
+    <span class="link">
+      {#if item.url}
+        <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
+      {/if}
+    </span>
     {#if level < 2}
       <div class="button">
         <Button size="small" onclick={() => addChildItem(item)} title="Add" style="positive"
@@ -170,7 +185,7 @@
   }
   .cell.title {
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto auto 1fr auto auto;
     padding-right: 4px;
   }
   .cell.owner {
@@ -203,6 +218,19 @@
   }
   .cell:hover .button {
     visibility: visible;
+  }
+  .cell > span.link {
+    opacity: 0;
+  }
+  .cell:hover > span.link {
+    opacity: 1;
+  }
+  .cell > span.link > a {
+    font-size: 1rem;
+    color: #000000;
+    text-decoration: none;
+    cursor: pointer;
+    padding-left: 8px;
   }
   @media (max-width: 1200px) {
     .roadmap {

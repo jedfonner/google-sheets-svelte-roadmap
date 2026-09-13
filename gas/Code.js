@@ -47,6 +47,8 @@ function getRoadmapData() {
 
   const dataRange = sheet.getDataRange();
   const values = dataRange.getValues();
+  const richTextValues = dataRange.getRichTextValues();
+
   const headers = values[0];
   const dataRows = values.slice(1);
 
@@ -59,17 +61,27 @@ function getRoadmapData() {
   const statusCol = headers.indexOf('Status');
   const dependencies = headers.indexOf('Dependencies')
 
+
   // Convert the 2D array from the shee tinto an array of objects
-  const data = dataRows.map((row) => ({
-    id: row[idCol].toString(),
-    title: row[titleCol].toString(),
-    owner: row[ownerCol].toString(),
-    startPi: row[startPiCol].toString(),
-    endPi: row[endPiCol].toString(),
-    parentId: row[parentIdCol].toString(),
-    status: row[statusCol].toString(),
-    dependencies: !row[dependencies] ? [] : row[dependencies].toString().split(',')
-  }));
+  const data = [];
+  for (let i = 0; i < dataRows.length; i++) {
+    const row = dataRows[i];
+    const element = {
+      id: row[idCol].toString(),
+      title: row[titleCol].toString(),
+      owner: row[ownerCol].toString(),
+      startPi: row[startPiCol].toString(),
+      endPi: row[endPiCol].toString(),
+      parentId: row[parentIdCol].toString(),
+      status: row[statusCol].toString(),
+      dependencies: !row[dependencies] ? [] : row[dependencies].toString().split(',')
+    };
+    const richText = richTextValues[i + 1][titleCol];
+    if (richText && richText.getLinkUrl() !== null) {
+      element.url = richText.getLinkUrl();
+    }
+    data.push(element);
+  }
 
   Logger.log('Returning data' + JSON.stringify(data).slice(0, 1000) + "..."); // Log only first 1000 characters to avoid excessive logging
   docCache.put('roadmapData', JSON.stringify(data)); // Cache data for future requests
