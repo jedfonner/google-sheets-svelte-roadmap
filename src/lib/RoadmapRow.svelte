@@ -47,78 +47,49 @@
   };
 </script>
 
+{#snippet title(item: RoadmapItem, level: number)}
+  {#if level < 2}
+    <CollapseToggle itemId={item.id} {toggleVisibility} />
+  {:else}
+    <span>‣</span>
+  {/if}
+  <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
+  <span class="link">
+    {#if item.url}
+      <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
+    {/if}
+  </span>
+  {#if level < 2}
+    <div class="button">
+      <Button
+        size="small"
+        onclick={() => addChildItem(item)}
+        title="Add Child Item"
+        style="positive">+</Button
+      >
+    </div>
+  {/if}
+  {#if !hasChildren}
+    <div class="button">
+      <Button size="small" onclick={deleteItem} title="Delete" style="negative">X</Button>
+    </div>
+  {/if}
+{/snippet}
+
 <!-- Title -->
-{#if level === 0}
+{#if level <= 1}
   <div
     class="cell title level-0"
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1 / 3;"
   >
-    <CollapseToggle itemId={item.id} {toggleVisibility} />
-    <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
-    <span class="link">
-      {#if item.url}
-        <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
-      {/if}
-    </span>
-    <div class="button">
-      <Button
-        size="small"
-        onclick={() => addChildItem(item)}
-        title="Add Child Item"
-        style="positive">+</Button
-      >
-    </div>
-  </div>
-{:else if level === 1}
-  <div
-    class="cell title level-1"
-    style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1 / 3;"
-  >
-    <CollapseToggle itemId={item.id} {toggleVisibility} />
-    <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
-    <span class="link">
-      {#if item.url}
-        <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
-      {/if}
-    </span>
-    <div class="button">
-      <Button
-        size="small"
-        onclick={() => addChildItem(item)}
-        title="Add Child Item"
-        style="positive">+</Button
-      >
-    </div>
-    {#if !hasChildren}
-      <div class="button">
-        <Button size="small" onclick={deleteItem} title="Delete" style="negative">X</Button>
-      </div>
-    {/if}
+    {@render title(item, level)}
   </div>
 {:else}
   <div
     class="cell title level-{level}"
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1;"
   >
-    <span>‣</span>
-    <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
-    <span class="link">
-      {#if item.url}
-        <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
-      {/if}
-    </span>
-    {#if level < 2}
-      <div class="button">
-        <Button size="small" onclick={() => addChildItem(item)} title="Add" style="positive"
-          >+</Button
-        >
-      </div>
-    {/if}
-    {#if !hasChildren}
-      <div class="button">
-        <Button size="small" onclick={deleteItem} title="Delete" style="negative">X</Button>
-      </div>
-    {/if}
+    {@render title(item, level)}
   </div>
   <!-- Owner -->
   <div class="cell owner" style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 2;">
