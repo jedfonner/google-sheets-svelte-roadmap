@@ -79,7 +79,7 @@
 <!-- Title -->
 {#if level <= 1}
   <div
-    class="cell title level-0"
+    class="cell title level-{level}"
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1 / 3;"
   >
     {@render title(item, level)}
