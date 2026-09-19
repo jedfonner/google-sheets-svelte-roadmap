@@ -23,6 +23,11 @@
     computedStatus: RoadmapItemStatus;
     computedDuration: { startPi: string; endPi: string } | null;
     hasChildren: boolean;
+    dragEnabled: boolean;
+    dragIndex: number | null;
+    handleDragStart: Function;
+    handleDragOver: Function;
+    handleDragEnd: Function;
   }
   let {
     item = $bindable(),
@@ -32,6 +37,11 @@
     computedStatus,
     computedDuration,
     hasChildren,
+    dragEnabled,
+    dragIndex,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
   }: Props = $props();
 
   let roadmap = getRoadmapState();
@@ -51,6 +61,18 @@
   {#if level < 2}
     <CollapseToggle itemId={item.id} {toggleVisibility} />
   {:else}
+    {#if dragEnabled}
+      <handle
+        draggable="true"
+        role="button"
+        tabindex="0"
+        aria-label="Drag row"
+        ondragstart={(event: DragEvent) => handleDragStart(event, rowNum)}
+        ondragover={(event: DragEvent) => handleDragOver(event, rowNum)}
+        ondragend={(event: DragEvent) => handleDragEnd(event, rowNum)}
+        >⣶
+      </handle>
+    {/if}
     <span>‣</span>
   {/if}
   <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
@@ -80,6 +102,8 @@
 {#if level <= 1}
   <div
     class="cell title level-{level}"
+    class:dragEnabled
+    class:dragging={dragIndex === rowNum}
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1 / 3;"
   >
     {@render title(item, level)}
@@ -87,12 +111,18 @@
 {:else}
   <div
     class="cell title level-{level}"
+    class:dragEnabled
+    class:dragging={dragIndex === rowNum}
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 1;"
   >
     {@render title(item, level)}
   </div>
   <!-- Owner -->
-  <div class="cell owner" style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 2;">
+  <div
+    class="cell owner"
+    style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 2;"
+    class:dragging={dragIndex === rowNum}
+  >
     <Textbox bind:value={item.owner} onChange={() => updateSpreadsheet(item)} />
   </div>
 {/if}
@@ -100,6 +130,7 @@
 <!-- Status -->
 <div
   class="cell status {computedStatus} level-{level}"
+  class:dragging={dragIndex === rowNum}
   style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 3;"
 >
   {#if level <= 1}
@@ -116,6 +147,7 @@
 {#each roadmap.PIs as _, i}
   <div
     class="cell pi-cell level-{level}"
+    class:dragging={dragIndex === rowNum}
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: {i + COLUMN_START_INDEX};"
   ></div>
 {/each}
@@ -184,6 +216,9 @@
   .cell.title.level-2 {
     padding-left: 1.5rem;
   }
+  .cell.title.level-2.dragEnabled {
+    padding-left: 0.6rem;
+  }
   .cell .button {
     visibility: hidden;
   }
@@ -202,6 +237,17 @@
     text-decoration: none;
     cursor: pointer;
     padding-left: 8px;
+  }
+  .cell > handle {
+    opacity: 0;
+    cursor: grab;
+    margin-top: -6px;
+  }
+  .cell:hover > handle {
+    opacity: 1;
+  }
+  .cell.dragging {
+    opacity: 0.5;
   }
   @media (max-width: 1200px) {
     .roadmap {

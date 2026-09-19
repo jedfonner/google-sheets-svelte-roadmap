@@ -1,5 +1,5 @@
 <script module>
-  export const ROW_START_INDEX = 3; // Because of header row
+  export const ROW_START_INDEX = 3; // Because of header and filter rows
   export const COLUMN_START_INDEX = 4; // Because of title, owner, status columns
 
   export const STATUS_OPTIONS = [

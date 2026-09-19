@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { ROW_START_INDEX } from './Config.svelte';
   import type { RoadmapItem, RoadmapItemStatus } from '../global';
   import { COLUMN_START_INDEX } from './Config.svelte';
-  import { getRoadmapState } from './RoadmapProvider.svelte';
+  import { getRoadmapState, moveRoadmapItem } from './RoadmapProvider.svelte';
   import Confirm from './Confirm.svelte';
   import DependencyLines from './DependencyLines.svelte';
   import RoadmapRow from './RoadmapRow.svelte';
@@ -34,6 +35,10 @@
     status: '',
   });
 
+  let isFiltering = $derived.by(() => {
+    return filter.title !== '' || filter.owner !== '' || filter.status !== '';
+  });
+
   let hiddenItems = $state([] as string[]);
 
   let filteredItemIds = $derived.by(() => {
@@ -49,6 +54,35 @@
     });
     return filteredItems.map((item) => item.id);
   });
+
+  let draggedStart = $state(null as number | null);
+  let dragIndex = $state(null as number | null);
+
+  function handleDragStart(event: DragEvent, index: number) {
+    draggedStart = index;
+    dragIndex = index;
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+  }
+
+  function handleDragOver(event: DragEvent, index: number) {
+    event.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+    const draggedItem = roadmap.items[dragIndex];
+    const targetItem = roadmap.items[index];
+    const updated = [...roadmap.items];
+    const [moved] = updated.splice(dragIndex, 1);
+    updated.splice(index, 0, moved);
+    roadmap.items = updated;
+    dragIndex = index;
+  }
+
+  function handleDragEnd() {
+    if (draggedStart === null || dragIndex === null) return;
+    // subtract 1 because row_start includes the filter row, and we want to move the actual data sheet rows
+    moveRoadmapItem(ROW_START_INDEX - 1 + draggedStart, ROW_START_INDEX - 1 + dragIndex);
+    draggedStart = null;
+    dragIndex = null;
+  }
 
   function toggleVisibility(itemId: string, isVisible: boolean): void {
     console.log('Toggling collapse for item:', itemId, isVisible);
@@ -187,6 +221,11 @@
       {computedDuration}
       {hasChildren}
       {toggleVisibility}
+      dragEnabled={!isFiltering}
+      {dragIndex}
+      {handleDragStart}
+      {handleDragOver}
+      {handleDragEnd}
     />
   {/each}
 

@@ -1,4 +1,5 @@
 import type { ServerFunctions, RoadmapItem } from '../global';
+import { moveRoadmapItem } from './RoadmapProvider.svelte';
 
 // Add your server functions here
 export const mocks: ServerFunctions = {
@@ -18,18 +19,19 @@ export const mocks: ServerFunctions = {
     return;
   },
   updateSpreadsheet: async (item: RoadmapItem) => {
-    console.log('[MOCK] Server function updateSpreadsheet executed');
-    // TODO: update roadmap-data.json
+    console.log('[MOCK] Server function updateSpreadsheet executed', item);
     return true;
   },
   addRoadmapItem: async (item: RoadmapItem) => {
-    console.log('[MOCK] Server function addRoadmapItem executed');
-    // TODO: update roadmap-data.json
+    console.log('[MOCK] Server function addRoadmapItem executed', item);
     return true;
   },
   removeRoadmapItem: async (index: number) => {
-    console.log('[MOCK] Server function removeRoadmapItem executed');
-    // TODO: update roadmap-data.json
+    console.log('[MOCK] Server function removeRoadmapItem executed', index);
+    return true;
+  },
+  moveRoadmapItem: async (fromIndex: number, toIndex: number) => {
+    console.log('[MOCK] Server function moveRoadmapItem executed', fromIndex, toIndex);
     return true;
   }
   // You can add more mock server functions here as needed

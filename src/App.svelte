@@ -7,6 +7,7 @@
     initRoadmapState,
     getSpreadsheetInfo,
     loadDataFromSpreadsheet,
+    refreshDataFromSpreadsheet,
     type RoadmapState,
   } from './lib/RoadmapProvider.svelte';
   import { initConfirmState } from './lib/ConfirmProvider.svelte';
@@ -38,6 +39,12 @@
 <main>
   <header>
     <h1><a href={url} target="_blank" title="Open Spreadsheet">{title}</a></h1>
+    <button
+      class="refresh"
+      type="button"
+      onclick={refreshDataFromSpreadsheet}
+      title="Refresh Data">⟳</button
+    >
     <span class="version">v{version}</span>
   </header>
 
@@ -60,11 +67,27 @@
     overflow: hidden;
   }
   header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-gap: 10px;
     padding: 1rem;
+  }
+  header button.refresh {
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    border: none;
+    background-color: unset;
+    margin-top: -10px;
+  }
+  header button.refresh:hover {
+    transform: scale(1.1);
+    color: yellow;
+  }
+  header button.refresh:active {
+    transform: scale(0.9);
+    transform: rotate(0.5turn);
+    transition: transform 0.5s linear;
   }
   h1 {
     flex-shrink: 0;

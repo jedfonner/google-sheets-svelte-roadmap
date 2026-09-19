@@ -33,6 +33,14 @@ export const getSpreadsheetInfo = (): Promise<{ name: string; url: string }> => 
 }
 
 export const loadDataFromSpreadsheet = (): Promise<RoadmapState> => {
+  console.log('Loading data from spreadsheet...');
+  return getRoadmapData(true);
+}
+export const refreshDataFromSpreadsheet = (): Promise<RoadmapState> => {
+  console.log('Refreshing data from spreadsheet without cache...');
+  return getRoadmapData(false);
+}
+const getRoadmapData = (useCache = true): Promise<RoadmapState> => {
   roadmapState.status = 'loading';
   return new Promise((resolve, reject) => {
     window.google.script.run
@@ -54,7 +62,7 @@ export const loadDataFromSpreadsheet = (): Promise<RoadmapState> => {
         console.error('Error invoking server function getRoadmapData:', error);
         reject(error);
       })
-      .getRoadmapData();
+      .getRoadmapData(useCache);
   });
 }
 
@@ -80,6 +88,23 @@ export const updateSpreadsheet = async (item: RoadmapItem): Promise<boolean> => 
     console.error('Error invoking server function:', error);
   }
   return false;
+}
+
+export const moveRoadmapItem = async (fromIndex: number, toIndex: number): Promise<void> => {
+  console.log('Moving item in spreadsheet: from:', fromIndex, 'to index:', toIndex);
+  try {
+    await window.google.script.run
+      .withSuccessHandler((response: boolean) => {
+        console.log(`Item ${response ? 'successfully moved' : 'failed to move'}`);
+        return;
+      })
+      .withFailureHandler((error: any) => {
+        console.error('Error updating spreadsheet:', error);
+      }).moveRoadmapItem(fromIndex, toIndex);
+  } catch (error) {
+    console.error('Error invoking server function:', error);
+  }
+  return;
 }
 
 export const addChildItem = async (parentItem: RoadmapItem): Promise<void> => {

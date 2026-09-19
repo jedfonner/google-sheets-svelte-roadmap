@@ -24,11 +24,11 @@ function getSpreadsheetInfo() {
 }
 
 const SHEET_NAME = 'Roadmap';
-function getRoadmapData() {
+function getRoadmapData(useCache = true) {
   Logger.log('Getting roadmap data from sheets');
   const docCache = CacheService.getDocumentCache();
   const cacheData = docCache.get('roadmapData');
-  if (cacheData) {
+  if (cacheData && useCache) {
     Logger.log('Returning cached data');
     return JSON.parse(cacheData);
   }
@@ -61,21 +61,23 @@ function getRoadmapData() {
   const data = [];
   for (let i = 0; i < dataRows.length; i++) {
     const row = dataRows[i];
-    const element = {
-      id: row[idCol].toString(),
-      title: row[titleCol].toString(),
-      owner: row[ownerCol].toString(),
-      startPi: row[startPiCol].toString(),
-      endPi: row[endPiCol].toString(),
-      parentId: row[parentIdCol].toString(),
-      status: row[statusCol].toString(),
-      dependencies: !row[dependencies] ? [] : row[dependencies].toString().split(',')
-    };
-    const richText = richTextValues[i + 1][titleCol];
-    if (richText && richText.getLinkUrl() !== null) {
-      element.url = richText.getLinkUrl();
+    if (!!row[idCol] && !!row[titleCol]) { // Only include rows with both ID and Title
+      const element = {
+        id: row[idCol].toString(),
+        title: row[titleCol].toString(),
+        owner: row[ownerCol].toString(),
+        startPi: row[startPiCol].toString(),
+        endPi: row[endPiCol].toString(),
+        parentId: row[parentIdCol].toString(),
+        status: row[statusCol].toString(),
+        dependencies: !row[dependencies] ? [] : row[dependencies].toString().split(',')
+      };
+      const richText = richTextValues[i + 1][titleCol];
+      if (richText && richText.getLinkUrl() !== null) {
+        element.url = richText.getLinkUrl();
+      }
+      data.push(element);
     }
-    data.push(element);
   }
 
   Logger.log('Returning data' + JSON.stringify(data).slice(0, 1000) + "..."); // Log only first 1000 characters to avoid excessive logging
@@ -125,6 +127,23 @@ function updateSpreadsheet(updatedItem) {
   }
   Logger.log('Item with ID ' + updatedItem.id + ' not found in sheet.');
   return false;
+}
+
+function moveRoadmapItem(fromIndex, toIndex) {
+  Logger.log('Swapping spreadsheet items from index ' + fromIndex + ' to ' + toIndex);
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    Logger.log('Sheet not found: ' + SHEET_NAME);
+    return false;
+  }
+  const row = sheet.getRange(fromIndex, 1, 1, sheet.getLastColumn());
+  // Because of how moveRows works, we need to adjust the target index if we're moving downwards
+  if (fromIndex < toIndex) {
+    sheet.moveRows(row, toIndex + 1);
+  } else {
+    sheet.moveRows(row, toIndex);
+  }
+  return true;
 }
 
 function addRoadmapItem(newItem, index) {
