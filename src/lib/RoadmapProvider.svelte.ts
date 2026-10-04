@@ -108,17 +108,19 @@ export const moveRoadmapItem = async (fromIndex: number, toIndex: number): Promi
 }
 
 export const addChildItem = async (parentItem: RoadmapItem): Promise<void> => {
+  const lastChildIndex = roadmapState.items.findLastIndex((item) => item.parentId === parentItem.id);
+  const lastChild = roadmapState.items[lastChildIndex];
   const newItem: RoadmapItem = {
     id: crypto.randomUUID(),
     parentId: parentItem.id,
-    title: 'New Item',
+    title: 'NEW ITEM - Click to rename',
     owner: 'TBD',
     status: 'planned',
-    startPi: parentItem.startPi || roadmapState.PIs[0],
-    endPi: parentItem.endPi || roadmapState.PIs[1],
+    startPi: lastChild.startPi,
+    endPi: lastChild.endPi,
   };
-  const index = roadmapState.items.findIndex((item) => item.id === parentItem.id);
-  roadmapState.items.splice(index + 1, 0, newItem);
+  console.log('Adding new item at index ' + (lastChildIndex + 1))
+  roadmapState.items.splice(lastChildIndex + 1, 0, newItem);
 
   try {
     console.log('Adding new item to spreadsheet:', newItem);
@@ -130,7 +132,7 @@ export const addChildItem = async (parentItem: RoadmapItem): Promise<void> => {
       .withFailureHandler((error: any) => {
         console.error('Error updating spreadsheet:', error);
       })
-      .addRoadmapItem(newItem, index + 1);
+      .addRoadmapItem(newItem, lastChildIndex + 1);
   } catch (error) {
     console.error('Error invoking server function:', error);
   }
