@@ -43,7 +43,9 @@
 
   let filteredItemIds = $derived.by(() => {
     const filteredItems = roadmap.items.filter((item) => {
-      const isCollapsed = item.parentId && hiddenItems.includes(item.parentId);
+      const level = idLevelMap.get(item.id) ?? 0;
+      const isCollapsed =
+        (item.parentId && hiddenItems.includes(item.parentId)) || collapseLevel < level;
       const matchesTitle =
         filter.title === '' || item.title.toLowerCase().includes(filter.title.toLowerCase());
       const matchesOwner =
@@ -160,11 +162,27 @@
     }
     return 'planned';
   }
+
+  let collapseLevel = $state(2);
+  function toggleCollapse() {
+    switch (collapseLevel) {
+      case 1:
+      case 2:
+        collapseLevel--;
+        break;
+      case 0:
+        collapseLevel = 2;
+    }
+  }
 </script>
 
 <div class="roadmap" style="--num-PIs: {roadmap.PIs.length};">
   <!-- Header Row -->
-  <div class="header" style="grid-row: 1; grid-column: 1;">Title</div>
+  <div class="header" style="grid-row: 1; grid-column: 1;">
+    Title <button class="collapse" onclick={toggleCollapse}
+      >({collapseLevel == 0 ? 'Expand' : 'Collapse Level ' + (collapseLevel + 1)})</button
+    >
+  </div>
   <div class="header" style="grid-row: 1; grid-column: 2;">Owner</div>
   <div class="header" style="grid-row: 1; grid-column: 3;">Status</div>
   {#each roadmap.PIs as quarter, i}
@@ -273,5 +291,18 @@
     display: grid;
     grid-template-columns: auto 20px;
     gap: 4px;
+  }
+  button.collapse {
+    outline: 0;
+    border: 0;
+    background: unset;
+    cursor: pointer;
+    font-size: 0.7rem;
+  }
+  button:hover {
+    text-decoration: underline;
+  }
+  button:active {
+    transform: scale(0.95);
   }
 </style>
