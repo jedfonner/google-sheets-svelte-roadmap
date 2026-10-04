@@ -298,6 +298,7 @@
     background: unset;
     cursor: pointer;
     font-size: 0.7rem;
+    color: white;
   }
   button:hover {
     text-decoration: underline;
