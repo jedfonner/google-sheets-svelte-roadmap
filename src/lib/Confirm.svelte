@@ -94,8 +94,15 @@
   }
   button.approve {
     background-color: green;
+    box-shadow: 0px 0px 4px 4px rgba(255, 255, 255, 0.5);
   }
   button.reject {
     background-color: rgb(115, 0, 0);
+  }
+  button:hover {
+    transform: scale(1.05);
+  }
+  button:active {
+    transform: scale(0.95);
   }
 </style>
