@@ -17,10 +17,10 @@ export const initRoadmapState = (): RoadmapState => {
   return setContext('roadmapState', roadmapState);
 }
 
-export const getSpreadsheetInfo = (): Promise<{ name: string; url: string }> => {
+export const getSpreadsheetInfo = (): Promise<{ name: string; url: string, isEditable: boolean }> => {
   return new Promise((resolve, reject) => {
     window.google.script.run
-      .withSuccessHandler((response: { name: string; url: string }) => {
+      .withSuccessHandler((response: { name: string; url: string, isEditable: boolean }) => {
         console.log('Spreadsheet info from server:', response);
         resolve(response);
       })

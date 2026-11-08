@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type { Attachment } from 'svelte/attachments';
-
   interface Option {
     label: string;
     value: string;
@@ -8,14 +6,22 @@
   interface FieldProps {
     options: Option[];
     value: string;
+    onChange: () => void;
+    allowUserToEdit?: boolean;
   }
-  let { options, value = $bindable(), onChange } = $props();
+  let {
+    options,
+    value = $bindable(),
+    onChange,
+    allowUserToEdit = false,
+  }: FieldProps = $props();
 
   function getDisplayValue(value: string): string {
     const option = options.find((opt: { value: string }) => opt.value === value);
     return option ? option.label : value;
   }
   function handleOnKeyDown(event: KeyboardEvent) {
+    if (!allowUserToEdit) return;
     if (event.key === 'Enter') {
       isEditable = false;
       onChange && onChange();
@@ -64,10 +70,11 @@
 {:else}
   <div
     class="dropdown display"
+    class:clickable={allowUserToEdit}
     role="button"
     tabindex="0"
-    title="Click to edit"
-    onclick={() => (isEditable = true)}
+    title={allowUserToEdit ? 'Click to edit' : ''}
+    onclick={() => (isEditable = allowUserToEdit && true)}
     onkeydown={handleOnKeyDown}
   >
     {getDisplayValue(value)}
@@ -75,7 +82,7 @@
 {/if}
 
 <style>
-  .dropdown.display {
+  .dropdown.display.clickable {
     cursor: pointer;
   }
   .dropdown {

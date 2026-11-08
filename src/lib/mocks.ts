@@ -5,7 +5,7 @@ import { moveRoadmapItem } from './RoadmapProvider.svelte';
 export const mocks: ServerFunctions = {
   getSpreadsheetInfo: async () => {
     console.log('[MOCK] Server function getSpreadsheetInfo executed');
-    return { name: 'Mock Spreadsheet Name', url: 'https://docs.google.com/spreadsheets/d/mock-spreadsheet-id' };
+    return { name: 'Mock Spreadsheet Name', url: 'https://docs.google.com/spreadsheets/d/mock-spreadsheet-id', isEditable: true };
   },
   getRoadmapData: async () => {
     console.log('[MOCK] Server function getRoadmapData executed');

@@ -20,7 +20,14 @@ function getSpreadsheetInfo() {
   const spreadsheet = SpreadsheetApp.getActive();
   const name = spreadsheet.getName();
   const url = spreadsheet.getUrl();
-  return { name, url };
+  const isEditable = canEdit();
+  return { name, url, isEditable };
+}
+
+function canEdit() {
+  const userEmail = Session.getActiveUser().getEmail();
+  const editors = SpreadsheetApp.getActiveSpreadsheet().getEditors().map(editor => editor.getEmail());
+  return editors.includes(userEmail);
 }
 
 const SHEET_NAME = 'Roadmap';

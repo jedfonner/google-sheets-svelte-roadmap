@@ -1,8 +1,10 @@
 <script lang="ts">
   interface FieldProps {
     value: string;
+    onChange: () => void;
+    allowUserToEdit?: boolean;
   }
-  let { value = $bindable(), onChange } = $props();
+  let { value = $bindable(), onChange, allowUserToEdit = false }: FieldProps = $props();
 
   let isEditable = $state(false);
 
@@ -32,14 +34,15 @@
 {:else}
   <div
     class="field display"
+    class:clickable={allowUserToEdit}
     role="button"
     tabindex="0"
-    title="Click to edit"
-    onclick={() => (isEditable = true)}
+    title={allowUserToEdit ? 'Click to edit' : ''}
+    onclick={() => (isEditable = allowUserToEdit && true)}
     onkeydown={(e) => {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault();
-        isEditable = true;
+        isEditable = allowUserToEdit && true;
       }
     }}
   >
@@ -51,6 +54,8 @@
   .field.display {
     min-width: 50px;
     min-height: 50%;
+  }
+  .field.display.clickable {
     cursor: pointer;
   }
   .field.editable {

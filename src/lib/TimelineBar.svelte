@@ -274,7 +274,7 @@
   class:dragging={draggedItem === item.id}
   role="button"
   tabindex="0"
-  onmousedown={(e) => startDrag(e, item.id, 'move')}
+  onmousedown={(e) => editable && startDrag(e, item.id, 'move')}
   style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: {getColumnSpan(
     item.startPi,
     item.endPi,
@@ -283,7 +283,7 @@
 >
   <div
     class="resize-handle resize-handle-start"
-    onmousedown={(e) => startDrag(e, item.id, 'resize-start')}
+    onmousedown={(e) => editable && startDrag(e, item.id, 'resize-start')}
     role="button"
     tabindex="0"
     aria-label="Resize start"

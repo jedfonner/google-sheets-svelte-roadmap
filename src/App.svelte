@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { RoadmapItem } from './global';
   import Roadmap from './lib/Roadmap.svelte';
   import { onMount } from 'svelte';
   import {
@@ -23,11 +22,13 @@
 
   let title = $state('Loading...');
   let url = $state('');
+  let isEditable = $state(false);
 
   onMount(async () => {
     const info = await getSpreadsheetInfo();
     title = info.name;
     url = info.url;
+    isEditable = info.isEditable;
     await loadDataFromSpreadsheet();
   });
 </script>
@@ -38,7 +39,12 @@
 
 <main>
   <header>
-    <h1><a href={url} target="_blank" title="Open Spreadsheet">{title}</a></h1>
+    <h1>
+      <a href={url} target="_blank" title="Open Spreadsheet">{title}</a>
+      {#if title !== 'Loading...'}
+        <span class="access">{isEditable ? '' : '(Read-only)'}</span>
+      {/if}
+    </h1>
     <button
       class="refresh"
       type="button"
@@ -54,7 +60,7 @@
     <p>Error loading data.</p>
   {:else}
     <div class="roadmap-container">
-      <Roadmap />
+      <Roadmap {isEditable} />
     </div>
   {/if}
 </main>
@@ -102,6 +108,12 @@
   }
   h1:hover a::after {
     content: ' ↗';
+  }
+  h1 .access {
+    font-size: 0.9rem;
+    color: gray;
+    margin-left: 0.5rem;
+    vertical-align: middle;
   }
   p {
     padding: 1rem;

@@ -28,6 +28,7 @@
     handleDragStart: Function;
     handleDragOver: Function;
     handleDragEnd: Function;
+    isEditable: boolean;
   }
   let {
     item = $bindable(),
@@ -42,11 +43,13 @@
     handleDragStart,
     handleDragOver,
     handleDragEnd,
+    isEditable,
   }: Props = $props();
 
   let roadmap = getRoadmapState();
 
   const deleteItem = () => {
+    if (!isEditable) return;
     showConfirmDialog(
       `Delete ${item.title}?`,
       `Are you sure you want to delete ${item.title}?`,
@@ -61,7 +64,7 @@
   {#if level < 2}
     <CollapseToggle itemId={item.id} {toggleVisibility} />
   {:else}
-    {#if dragEnabled}
+    {#if dragEnabled && isEditable}
       <handle
         draggable="true"
         role="button"
@@ -75,23 +78,27 @@
     {/if}
     <span>‣</span>
   {/if}
-  <Textbox bind:value={item.title} onChange={() => updateSpreadsheet(item)} />
+  <Textbox
+    bind:value={item.title}
+    onChange={() => updateSpreadsheet(item)}
+    allowUserToEdit={isEditable}
+  />
   <span class="link">
     {#if item.url}
       <a href={item.url} target="_blank" rel="noopener noreferrer" title="Open Link"> ↗ </a>
     {/if}
   </span>
-  {#if level < 2}
+  {#if level < 2 && isEditable}
     <div class="button">
       <Button
         size="small"
-        onclick={() => addChildItem(item)}
+        onclick={() => isEditable && addChildItem(item)}
         title="Add Child Item"
         style="positive">+</Button
       >
     </div>
   {/if}
-  {#if !hasChildren}
+  {#if !hasChildren && isEditable}
     <div class="button">
       <Button size="small" onclick={deleteItem} title="Delete" style="negative">X</Button>
     </div>
@@ -123,7 +130,11 @@
     style="grid-row: {rowNum + ROW_START_INDEX}; grid-column: 2;"
     class:dragging={dragIndex === rowNum}
   >
-    <Textbox bind:value={item.owner} onChange={() => updateSpreadsheet(item)} />
+    <Textbox
+      bind:value={item.owner}
+      onChange={() => updateSpreadsheet(item)}
+      allowUserToEdit={isEditable}
+    />
   </div>
 {/if}
 
@@ -140,6 +151,7 @@
       bind:value={item.status}
       options={STATUS_OPTIONS}
       onChange={() => updateSpreadsheet(item)}
+      allowUserToEdit={isEditable}
     />
   {/if}
 </div>
@@ -162,7 +174,7 @@
   <TimelineBar item={headerItem} {rowNum} editable={false} />
 {:else}
   <!-- ignore warnings about binding to non-reactive property-->
-  <TimelineBar bind:item {rowNum} />
+  <TimelineBar bind:item {rowNum} editable={isEditable} />
 {/if}
 
 <style>

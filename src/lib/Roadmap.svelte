@@ -8,8 +8,9 @@
   import RoadmapRow from './RoadmapRow.svelte';
 
   interface Props {
-    items: RoadmapItem[];
+    isEditable: boolean;
   }
+  let { isEditable = false }: Props = $props();
 
   let roadmap = getRoadmapState();
 
@@ -61,12 +62,14 @@
   let dragIndex = $state(null as number | null);
 
   function handleDragStart(event: DragEvent, index: number) {
+    if (!isEditable) return;
     draggedStart = index;
     dragIndex = index;
     if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
   }
 
   function handleDragOver(event: DragEvent, index: number) {
+    if (!isEditable) return;
     event.preventDefault();
     if (dragIndex === null || dragIndex === index) return;
     const draggedItem = roadmap.items[dragIndex];
@@ -79,6 +82,7 @@
   }
 
   function handleDragEnd() {
+    if (!isEditable) return;
     if (draggedStart === null || dragIndex === null) return;
     // subtract 1 because row_start includes the filter row, and we want to move the actual data sheet rows
     moveRoadmapItem(ROW_START_INDEX - 1 + draggedStart, ROW_START_INDEX - 1 + dragIndex);
@@ -244,6 +248,7 @@
       {handleDragStart}
       {handleDragOver}
       {handleDragEnd}
+      {isEditable}
     />
   {/each}
 
