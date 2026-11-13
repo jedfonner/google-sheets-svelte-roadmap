@@ -25,9 +25,20 @@ function getSpreadsheetInfo() {
 }
 
 function canEdit() {
-  const userEmail = Session.getActiveUser().getEmail();
-  const editors = SpreadsheetApp.getActiveSpreadsheet().getEditors().map(editor => editor.getEmail());
-  return editors.includes(userEmail);
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const fileId = sheet.getId();
+  try {
+    // The Drive Advanced Service natively supports Shared Drives
+    const fileInfo = Drive.Files.get(fileId, {
+      supportsAllDrives: true,
+      fields: "capabilities/canEdit"
+    });
+    // capabilities.canEdit evaluates if the active user running the script has edit rights
+    return fileInfo.capabilities.canEdit === true;
+  } catch (error) {
+    Logger.log("Error checking permissions: " + error.toString());
+    return false;
+  }
 }
 
 const SHEET_NAME = 'Roadmap';
